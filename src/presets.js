@@ -18,7 +18,7 @@ export const PRESETS = [
     id: "default",
     name: "Default",
     colors: { water: "#A8D5E8", greenery: "#B5C99A", buildings: "#D4A96A", roads: "#F0EBE1" },
-    paper: "#FAF6EE",
+    paper: "#EFE8DA",
     ink: "#C9BFA8",
   },
   {
@@ -32,7 +32,7 @@ export const PRESETS = [
     id: "pastel",
     name: "Pastel",
     colors: { water: "#B8D4E8", greenery: "#C8DDB4", buildings: "#F4D4C0", roads: "#EDE8E0" },
-    paper: "#FBF8F3",
+    paper: "#F4EFE7",
     ink: "#D8D2C8",
   },
   {
@@ -53,7 +53,7 @@ export const PRESETS = [
     id: "arctic",
     name: "Arctic",
     colors: { water: "#7DB8D4", greenery: "#A8C4B8", buildings: "#C8D8E0", roads: "#E8F0F4" },
-    paper: "#F6FAFC",
+    paper: "#DDE9F0",
     ink: "#CBDBE4",
   },
 ];

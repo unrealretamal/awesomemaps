@@ -1,7 +1,7 @@
 import "./style.css";
 import { mountIcons } from "./icons.js";
 import { COLOR_KEYS, LAYERS, LOCATION_PRESETS, PRESETS, SHAPES } from "./presets.js";
-import { fetchFeatures, geocode } from "./osm.js";
+import { countFeatures, fetchFeatures, geocode } from "./osm.js";
 import { renderPlaceholder, renderSvg } from "./render.js";
 import { exportPng, exportSvg } from "./export.js";
 
@@ -217,7 +217,7 @@ async function generate() {
 
     draw();
     syncMeta();
-    const count = Object.values(state.features).reduce((sum, list) => sum + list.length, 0);
+    const count = countFeatures(state.features);
     setStatus(count ? "" : "No features found here — try a larger radius", !count);
   } catch (error) {
     setStatus(error.message, true);

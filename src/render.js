@@ -1,26 +1,21 @@
-// Turns OSM buckets into an SVG poster. Everything is drawn in a
-// 1000×1000 viewBox so the same markup scales to any export size.
+// Draws the poster from the payload produced by /api/features.
+//
+// Geometry arrives already projected into the 1000×1000 artwork box, in tenths
+// of a unit and delta-encoded along each ring: [x0, y0, dx, dy, …]. Areas are
+// bare rings, roads and railways are { w: weight, p: ring }, amenities are one
+// delta-encoded point list.
 
 const SIZE = 1000;
-const M_PER_DEG_LAT = 110574;
-const M_PER_DEG_LON = 111320;
+const PRECISION = 10;
 
-function projector({ lat, lon, radius }) {
-  const metresPerUnit = (radius * 2) / SIZE;
-  const lonScale = Math.cos((lat * Math.PI) / 180) * M_PER_DEG_LON;
-  return ([px, py]) => [
-    SIZE / 2 + ((px - lon) * lonScale) / metresPerUnit,
-    SIZE / 2 - ((py - lat) * M_PER_DEG_LAT) / metresPerUnit,
-  ];
-}
-
-const round = (n) => Math.round(n * 10) / 10;
-
-function toPath(points, project, closed) {
-  let d = "";
-  for (let i = 0; i < points.length; i += 1) {
-    const [x, y] = project(points[i]);
-    d += `${i === 0 ? "M" : "L"}${round(x)} ${round(y)}`;
+function toPath(ring, closed) {
+  let x = ring[0];
+  let y = ring[1];
+  let d = `M${x / PRECISION} ${y / PRECISION}`;
+  for (let i = 2; i < ring.length; i += 2) {
+    x += ring[i];
+    y += ring[i + 1];
+    d += `L${x / PRECISION} ${y / PRECISION}`;
   }
   return closed ? `${d}Z` : d;
 }
@@ -31,6 +26,7 @@ function clipShape(shape) {
     const r = SIZE / 2;
     const points = Array.from({ length: 6 }, (_, i) => {
       const angle = ((60 * i - 90) * Math.PI) / 180;
+      const round = (n) => Math.round(n * 10) / 10;
       return `${round(r + r * Math.cos(angle))},${round(r + r * Math.sin(angle))}`;
     });
     return `<polygon points="${points.join(" ")}" />`;
@@ -43,24 +39,20 @@ const escape = (text) =>
 
 /**
  * @param {object} opts
- * @param {object} opts.features  buckets from osm.js (may be empty)
+ * @param {object} opts.features  payload from /api/features
  * @param {object} opts.preset    palette (colors, paper, ink)
- * @param {object} opts.colors    per-layer overrides
+ * @param {object} opts.colors    per-layer color overrides
  * @param {object} opts.layers    { [layerId]: boolean }
  * @param {string} opts.shape     circle | square | hexagon
- * @param {boolean} [opts.attribution]  stamp OSM credit inside the artwork
+ * @param {boolean} [opts.attribution]  stamp the OSM credit inside the artwork
  */
 export function renderSvg(opts) {
-  const { features, preset, colors, layers, shape, place, radius, attribution = false } = opts;
-  const project = projector({ lat: place.lat, lon: place.lon, radius });
+  const { features, preset, colors, layers, shape, place, attribution = false } = opts;
   const groups = [];
 
   const area = (layer, fill, strokeWidth = 0) => {
     if (!layers[layer] || !features[layer]?.length) return;
-    const d = features[layer]
-      .filter((f) => f.points)
-      .map((f) => toPath(f.points, project, true))
-      .join("");
+    const d = features[layer].map((ring) => toPath(ring, true)).join("");
     if (!d) return;
     const stroke = strokeWidth
       ? ` stroke="${preset.ink}" stroke-width="${strokeWidth}" stroke-linejoin="round"`
@@ -70,14 +62,13 @@ export function renderSvg(opts) {
 
   const lines = (layer, stroke, base, dash = "") => {
     if (!layers[layer] || !features[layer]?.length) return;
-    const byWeight = new Map();
-    for (const f of features[layer]) {
-      if (!f.points) continue;
-      const w = round(base * (f.weight ?? 1));
-      if (w <= 0) continue;
-      byWeight.set(w, (byWeight.get(w) ?? "") + toPath(f.points, project, false));
+    const byWidth = new Map();
+    for (const { w, p } of features[layer]) {
+      const width = Math.round(base * (w ?? 1) * 10) / 10;
+      if (width <= 0) continue;
+      byWidth.set(width, (byWidth.get(width) ?? "") + toPath(p, false));
     }
-    for (const [width, d] of byWeight) {
+    for (const [width, d] of byWidth) {
       groups.push(
         `<path d="${d}" fill="none" stroke="${stroke}" stroke-width="${width}" ` +
           `stroke-linecap="round" stroke-linejoin="round"${dash} />`
@@ -92,19 +83,22 @@ export function renderSvg(opts) {
   area("buildings", colors.buildings, 0.6);
 
   if (layers.amenities && features.amenities?.length) {
-    const dots = features.amenities
-      .filter((f) => f.point)
-      .map((f) => {
-        const [x, y] = project(f.point);
-        return `<circle cx="${round(x)}" cy="${round(y)}" r="2.5" />`;
-      })
-      .join("");
-    if (dots) groups.push(`<g fill="${preset.ink}">${dots}</g>`);
+    const points = features.amenities;
+    let x = points[0];
+    let y = points[1];
+    let dots = `<circle cx="${x / PRECISION}" cy="${y / PRECISION}" r="2.5" />`;
+    for (let i = 2; i < points.length; i += 2) {
+      x += points[i];
+      y += points[i + 1];
+      dots += `<circle cx="${x / PRECISION}" cy="${y / PRECISION}" r="2.5" />`;
+    }
+    groups.push(`<g fill="${preset.ink}">${dots}</g>`);
   }
 
   const credit = attribution
-    ? `<text x="${SIZE / 2}" y="${SIZE - 24}" text-anchor="middle" font-family="JetBrains Mono, monospace" ` +
-      `font-size="16" fill="${preset.ink}">© OpenStreetMap contributors</text>`
+    ? `<text x="${SIZE / 2}" y="${SIZE - 24}" text-anchor="middle" ` +
+      `font-family="JetBrains Mono, monospace" font-size="16" fill="${preset.ink}">` +
+      `© OpenStreetMap contributors</text>`
     : "";
 
   return (
