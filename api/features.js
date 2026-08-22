@@ -12,7 +12,10 @@ export default async function handler(req, res) {
       railways: Boolean(railways),
       amenities: Boolean(amenities),
     });
-    return sendJson(res, 200, features, 86400);
+    // Never cache an empty frame: it is far more likely a throttled upstream
+    // than a genuinely featureless place, and the edge would serve it for a day.
+    const isEmpty = Object.values(features).every((list) => list.length === 0);
+    return sendJson(res, 200, features, isEmpty ? 0 : 86400);
   } catch (error) {
     const status = error instanceof UpstreamError ? error.status : 500;
     return sendJson(res, status, { error: error.message });

@@ -237,6 +237,7 @@ export async function fetchFeatures({ lat, lon, radius, railways, amenities }) {
   });
 
   let lastError;
+  let empties = 0;
   // Public Overpass instances allow two concurrent slots per IP; a short wait
   // is usually enough to get one.
   for (const endpoint of [...OVERPASS_MIRRORS, "retry", ...OVERPASS_MIRRORS]) {
@@ -258,7 +259,22 @@ export async function fetchFeatures({ lat, lon, radius, railways, amenities }) {
         lastError = new Error(`${endpoint} returned ${res.status}`);
         continue;
       }
-      return compact((await res.json()).elements ?? [], safeRadius, lat, lon);
+      const json = await res.json();
+      // Overpass answers 200 with a `remark` when a query times out or the
+      // rate limit bites; the body is empty but looks successful.
+      if (json.remark) {
+        lastError = new Error(json.remark);
+        continue;
+      }
+      if (!json.elements?.length) {
+        // A genuinely empty area (open sea, desert) is a valid answer, but so
+        // is a throttled mirror: only believe it if a second mirror agrees.
+        empties += 1;
+        lastError = new Error("empty response");
+        if (empties >= 2) return compact([], safeRadius, lat, lon);
+        continue;
+      }
+      return compact(json.elements, safeRadius, lat, lon);
     } catch (error) {
       lastError = error;
     }
