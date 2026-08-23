@@ -9,9 +9,11 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "sharp": "^0.35.3",
     "vite": "^7.1.5"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.120.0",
     "@mapbox/vector-tile": "^3.0.0",
     "pbf": "^5.1.2"
   }
