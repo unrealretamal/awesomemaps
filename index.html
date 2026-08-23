@@ -3,20 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>prettymaps — map generator</title>
+    <title>Wonderful Maps — poster map generator</title>
     <meta name="description" content="Generate poster-style maps of any neighbourhood from OpenStreetMap data. Export SVG or PNG." />
     <link rel="icon" href="/icons/logo.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div class="app">
       <!-- ── Left sidebar ─────────────────────────────────────────── -->
       <aside class="sidebar sidebar--left">
         <div class="brand">
-          <span class="brand__mark"><i class="icon" data-icon="logo"></i></span>
-          <span class="brand__name">prettymaps</span>
+          <span class="brand__mark"><img id="brand-mark" src="" alt="" width="20" height="20" /></span>
+          <span class="brand__name">Wonderful Maps</span>
           <span class="tag">v2</span>
         </div>
 
@@ -75,8 +75,9 @@
             <i class="icon" data-icon="dot"></i>
             <span id="topbar-place">Bairro Alto, Lisbon</span>
           </div>
-          <div class="topbar__spacer">
+          <div class="topbar__meta">
             <span class="tag" id="topbar-meta">1000m · circle</span>
+            <span class="topbar__note" id="topbar-note" hidden></span>
           </div>
           <div class="menu">
             <button class="btn btn--ghost" id="export-btn" aria-haspopup="true" aria-expanded="false">

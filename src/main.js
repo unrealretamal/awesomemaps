@@ -1,6 +1,6 @@
 import "./style.css";
-import { mountIcons } from "./icons.js";
-import { COLOR_KEYS, LAYERS, LOCATION_PRESETS, PRESETS, SHAPES } from "./presets.js";
+import { brandMark, mountIcons } from "./icons.js";
+import { COLOR_KEYS, LAYERS, LOCATION_NOTES, LOCATION_PRESETS, PRESETS, SHAPES } from "./presets.js";
 import { countFeatures, fetchFeatures, geocode } from "./osm.js";
 import { renderPlaceholder, renderSvg } from "./render.js";
 import { exportPng, exportSvg } from "./export.js";
@@ -164,6 +164,11 @@ function syncMeta() {
   $("canvas-caption").textContent = label;
   $("topbar-meta").textContent = `${state.radius}m · ${state.shape}`;
 
+  const haystack = `${label} ${state.query}`.toLowerCase();
+  const note = Object.entries(LOCATION_NOTES).find(([key]) => haystack.includes(key))?.[1] ?? "";
+  $("topbar-note").textContent = note;
+  $("topbar-note").hidden = !note;
+
   const r = state.radius / 1000;
   const areaByShape = {
     circle: Math.PI * r * r,
@@ -240,6 +245,7 @@ function markStale() {
 
 function init() {
   mountIcons();
+  $("brand-mark").src = brandMark;
   buildLocationPresets();
   buildPresets();
   buildShapes();

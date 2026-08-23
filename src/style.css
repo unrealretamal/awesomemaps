@@ -84,9 +84,16 @@ input {
   justify-content: center;
   width: 20px;
   height: 20px;
-  background: var(--accent);
+  flex: none;
   border-radius: var(--radius);
-  color: var(--bg-app);
+  overflow: hidden;
+}
+
+.brand__mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .brand__name {
@@ -381,16 +388,32 @@ input {
   flex: none;
 }
 
-.topbar__spacer {
+.topbar__meta {
   display: flex;
   flex: 1;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
   min-width: 0;
 }
 
-.topbar__spacer .tag {
+.topbar__meta .tag {
   margin-left: 0;
+  flex: none;
   padding: 4px 8px;
+}
+
+.topbar__note {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  color: #fff;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar__note[hidden] {
+  display: none;
 }
 
 .btn {
@@ -693,10 +716,6 @@ input {
   height: 100%;
 }
 
-.icon[data-icon="logo"] {
-  width: 10px;
-  height: 10px;
-}
 .icon[data-icon="pin"] {
   width: 12px;
   height: 12px;
@@ -762,8 +781,7 @@ input {
     gap: 8px;
   }
 
-  .topbar__spacer {
+  .topbar__meta {
     flex-basis: 100%;
-    justify-content: flex-start;
   }
 }
