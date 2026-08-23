@@ -62,6 +62,9 @@
 }
 
 .site-nav__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   flex: none;
   padding: 8px 16px;
   border: 1px solid var(--accent);
@@ -77,6 +80,38 @@
 .site-nav__cta:hover {
   background: #5fd8cf;
   border-color: #5fd8cf;
+}
+
+/* The exported arrow is stroked in the accent colour, which would vanish on
+   the filled button — flatten it to the button's own ink. */
+.site-nav__arrow {
+  display: block;
+  flex: none;
+  filter: brightness(0);
+}
+
+/* Back to home: the mirror of the Generate CTA — same shape, secondary
+   weight, arrow reversed. */
+.site-nav__cta--back {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-2);
+}
+
+.site-nav__cta--back:hover {
+  background: transparent;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.site-nav__arrow--back {
+  transform: scaleX(-1);
+  filter: none;
+  opacity: 0.8;
+}
+
+.site-nav--focused {
+  justify-content: space-between;
 }
 
 @media (max-width: 860px) {
