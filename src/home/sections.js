@@ -241,6 +241,7 @@ export function footer() {
           <a href="https://www.openstreetmap.org" rel="noopener">OpenStreetMap</a>
           <a href="${REPO_URL}" rel="noopener">Prettymaps</a>
           <a href="${REPO_URL}" rel="noopener">GitHub Repo</a>
+          <a href="https://diegoramosretamal.info" rel="author">Diego's Portfolio</a>
         </div>
       </nav>
     </div>

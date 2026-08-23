@@ -165,6 +165,7 @@ function pageMarkup() {
         <div class="gal-foot__disclaimer">
           <span>AWESOMEMAPS — A MAP GENERATION PROJECT BY DIEGO RAMOS RETAMAL.</span>
           <span>MAP DATA © OPENSTREETMAP CONTRIBUTORS.</span>
+          <a href="https://diegoramosretamal.info" rel="author">DIEGO'S PORTFOLIO.</a>
         </div>
         <div class="gal-foot__brand">
           <span>VOL. 01 // 2026 COLLECTION</span>

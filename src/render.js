@@ -95,7 +95,7 @@ const DETAIL_ICONS = {
 // Compact local-system catalogue for 100 major metro areas. Marks are
 // intentionally drawn, not copied trademark artwork; they stay legible in SVG.
 const CITY_TRANSIT = Object.fromEntries([
-  ["london", "roundel"], ["paris", "M"], ["new york", "NYC"], ["tokyo", "M"],
+  ["london", "roundel"], ["greater london", "roundel"], ["paris", "M"], ["new york", "NYC"], ["tokyo", "M"], ["東京都", "M"],
   ["berlin", "U"], ["madrid", "M"], ["barcelona", "M"], ["lisboa", "M"],
   ["lisbon", "M"], ["rome", "M"], ["roma", "M"], ["milan", "M"],
   ["milano", "M"], ["vienna", "U"], ["wien", "U"], ["prague", "M"],
@@ -125,17 +125,21 @@ const CITY_TRANSIT = Object.fromEntries([
   ["algiers", "M"], ["tunis", "M"], ["addis ababa", "LRT"],
 ]);
 
-function cityTransitIcon(city) {
-  const key = String(city || "").toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  const entry = Object.entries(CITY_TRANSIT).find(([name]) => key.includes(name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")))?.[1];
+const normalizePlace = (value) => String(value || "").toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+
+function cityTransitIcon(place) {
+  const candidates = [place.city, place.search, place.label]
+    .flatMap((value) => String(value || "").split(","))
+    .map(normalizePlace);
+  const entry = Object.entries(CITY_TRANSIT).find(([name]) => candidates.includes(normalizePlace(name)))?.[1];
   if (!entry) return null;
   if (entry === "roundel") return `<circle r="5"/><path d="M-8 0H8" stroke-width="3"/>`;
   return `<text text-anchor="middle" dominant-baseline="central" font-family="JetBrains Mono,monospace" font-size="${entry.length > 2 ? 4 : 7}" font-weight="700" fill="currentColor" stroke="none">${entry}</text>`;
 }
 
-function detailIcon(kind, mode, city) {
-  if (mode === "metro" || kind === "subway_entrance") return DETAIL_ICONS.metro;
-  if (mode === "train") return cityTransitIcon(city) || DETAIL_ICONS.train;
+function detailIcon(kind, mode, place) {
+  if (mode === "metro" || kind === "subway_entrance") return cityTransitIcon(place) || DETAIL_ICONS.metro;
+  if (mode === "train") return DETAIL_ICONS.train;
   if (kind === "tram_stop") return DETAIL_ICONS.tram;
   if (kind === "station" || kind === "halt") return DETAIL_ICONS.train;
   if (kind === "museum") return DETAIL_ICONS.museum;
@@ -207,7 +211,7 @@ export function renderSvg(opts) {
     `<g transform="translate(${x / PRECISION} ${y / PRECISION})">` +
     (worship ? "" : `<circle r="10" fill="${preset.paper}" stroke="${preset.ink}" stroke-width="2"/>`) +
     `<g color="${preset.ink}" fill="none" stroke="currentColor" stroke-width="1.5" ` +
-    `stroke-linecap="round" stroke-linejoin="round">${detailIcon(k, m, place.city)}</g>` +
+    `stroke-linecap="round" stroke-linejoin="round">${detailIcon(k, m, place)}</g>` +
     `<title>${escape(n)}</title></g>`
     );
   };

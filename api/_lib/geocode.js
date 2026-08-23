@@ -25,5 +25,6 @@ export async function geocode(query) {
     lon: Number(hit.lon),
     label: hit.display_name.split(",").slice(0, 2).join(",").trim(),
     city: address.city || address.town || address.municipality || address.province || q,
+    search: q,
   };
 }
