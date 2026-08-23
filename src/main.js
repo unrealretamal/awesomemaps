@@ -8,6 +8,7 @@ const EXPORT_LONG_EDGE = 4096;
 import { countFeatures, fetchFeatures, geocode } from "./osm.js";
 import { frameOf, renderPlaceholder, renderSvg } from "./render.js";
 import { exportPng, exportSvg } from "./export.js";
+import { inject } from '@vercel/analytics';
 
 const $ = (id) => document.getElementById(id);
 
@@ -328,6 +329,7 @@ function markStale() {
 /* ── Wiring ────────────────────────────────────────────────────── */
 
 function init() {
+  inject();
   mountNav("generator");
   mountIcons();
   $("brand-mark").src = brandMark;
