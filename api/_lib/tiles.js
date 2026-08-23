@@ -177,7 +177,9 @@ function decodeTile(entry, project, features, sizedBuildings, withBuildings) {
       if (!point) continue;
       const projected = mapper(point);
       if (!inFrame(projected)) continue;
-      const kind = props.historic ? "historic" : props.amenity || props.tourism || "landmark";
+      const kind = props.amenity === "place_of_worship"
+        ? `worship:${props.religion || "generic"}`
+        : props.historic ? "historic" : props.amenity || props.tourism || "landmark";
       features.landmarks.push({ p: projected, n: props.name, k: kind });
     }
   }
@@ -192,7 +194,12 @@ function decodeTile(entry, project, features, sizedBuildings, withBuildings) {
       const point = feature.loadGeometry()[0]?.[0];
       if (!point) continue;
       const projected = mapper(point);
-      if (inFrame(projected)) features.transit.push({ p: projected, n: props.name, k: props.kind });
+      if (inFrame(projected)) {
+        const mode = props.kind === "tram_stop" ? "tram"
+          : props.kind === "subway_entrance" || /(^|\s)(U|M|Metro)(\s|$)/i.test(props.name) ? "metro"
+            : "train";
+        features.transit.push({ p: projected, n: props.name, k: props.kind, m: mode });
+      }
     }
   }
 }

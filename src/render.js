@@ -37,6 +37,38 @@ function clipShape(shape) {
 const escape = (text) =>
   String(text).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
 
+const DETAIL_ICONS = {
+  train: `<path d="M-5-5h10v8a3 3 0 01-3 3h-4a3 3 0 01-3-3zm2 2h6v4h-6zm0 9-2 3m8-3 2 3"/>`,
+  metro: `<circle r="6"/><path d="M-3 3v-6l3 4 3-4v6"/>`,
+  tram: `<path d="M-5-4h10v8H-5zm2 0 2-3h2l2 3M-3 0h6M-3 7l2-3m4 3L1 4"/>`,
+  church: `<path d="M0-7v14M-4-2h8"/>`,
+  mosque: `<path d="M3-6a6 6 0 10.5 11A5 5 0 113-6z" fill="currentColor" stroke="none"/><path d="M4-7l.7 1.5 1.6.2-1.2 1.1.3 1.6L4-3.4l-1.4.8.3-1.6-1.2-1.1 1.6-.2z" fill="currentColor" stroke="none"/>`,
+  synagogue: `<path d="M0-7 6 4H-6zm0 14L-6-4H6z"/>`,
+  temple: `<path d="M-6-3h12M-4-3l1 9m7-9L3 6M-6 6H6M-3-6h6"/>`,
+  museum: `<path d="M-6-3 0-7l6 4zM-5-1h10M-4-1v6m3-6v6m2-6v6m3-6v6M-6 6H6"/>`,
+  theatre: `<path d="M-6-5h12v7a6 6 0 01-12 0zM-3-1h.1M3-1h.1M-3 3q3 2 6 0"/>`,
+  viewpoint: `<path d="M-7 0q7-8 14 0Q0 8-7 0z"/><circle r="2"/>`,
+  historic: `<path d="M-6 6V-3l3-2 3 2 3-2 3 2v9M-6 1H6M-3 6V2h6v4"/>`,
+  landmark: `<path d="M0-7 2-2l5 2-5 2-2 5-2-5-5-2 5-2z"/>`,
+};
+
+function detailIcon(kind, mode) {
+  if (mode === "metro" || kind === "subway_entrance") return DETAIL_ICONS.metro;
+  if (mode === "train") return DETAIL_ICONS.train;
+  if (kind === "tram_stop") return DETAIL_ICONS.tram;
+  if (kind === "station" || kind === "halt") return DETAIL_ICONS.train;
+  if (kind === "museum") return DETAIL_ICONS.museum;
+  if (kind === "theatre" || kind === "arts_centre") return DETAIL_ICONS.theatre;
+  if (kind === "viewpoint") return DETAIL_ICONS.viewpoint;
+  if (kind === "historic") return DETAIL_ICONS.historic;
+  if (kind === "worship:muslim") return DETAIL_ICONS.mosque;
+  if (kind === "worship:jewish") return DETAIL_ICONS.synagogue;
+  if (["worship:buddhist", "worship:shinto", "worship:hindu"].includes(kind)) return DETAIL_ICONS.temple;
+  if (kind === "worship:christian") return DETAIL_ICONS.church;
+  if (kind.startsWith("worship:")) return DETAIL_ICONS.landmark;
+  return DETAIL_ICONS.landmark;
+}
+
 /**
  * @param {object} opts
  * @param {object} opts.features  payload from /api/features
@@ -88,20 +120,18 @@ export function renderSvg(opts) {
 
   const showLandmarks = mapDetails === "landmarks" || mapDetails === "all";
   const showTransit = mapDetails === "transit" || mapDetails === "all";
-  const marker = ({ p: [x, y], n, k }, symbol) =>
+  const marker = ({ p: [x, y], n, k, m }) =>
     `<g transform="translate(${x / PRECISION} ${y / PRECISION})">` +
-    `<circle r="8" fill="${preset.paper}" stroke="${preset.ink}" stroke-width="2"/>` +
-    `<text text-anchor="middle" dominant-baseline="central" font-family="JetBrains Mono,monospace" ` +
-    `font-size="8" font-weight="700" fill="${preset.ink}">${symbol(k)}</text>` +
+    `<circle r="10" fill="${preset.paper}" stroke="${preset.ink}" stroke-width="2"/>` +
+    `<g color="${preset.ink}" fill="none" stroke="currentColor" stroke-width="1.5" ` +
+    `stroke-linecap="round" stroke-linejoin="round">${detailIcon(k, m)}</g>` +
     `<title>${escape(n)}</title></g>`;
 
   if (showLandmarks && features.landmarks?.length) {
-    const icon = (kind) => kind === "museum" ? "M" : kind === "theatre" ? "T" : kind === "viewpoint" ? "V" : "◆";
-    groups.push(`<g aria-label="Landmarks">${features.landmarks.map((point) => marker(point, icon)).join("")}</g>`);
+    groups.push(`<g aria-label="Landmarks">${features.landmarks.map(marker).join("")}</g>`);
   }
   if (showTransit && features.transit?.length) {
-    const icon = (kind) => kind === "tram_stop" ? "T" : kind === "subway_entrance" ? "M" : "S";
-    groups.push(`<g aria-label="Metro and rail stations">${features.transit.map((point) => marker(point, icon)).join("")}</g>`);
+    groups.push(`<g aria-label="Metro and rail stations">${features.transit.map(marker).join("")}</g>`);
   }
 
   const credit = attribution

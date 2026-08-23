@@ -31,7 +31,7 @@ export async function fetchFeatures({ lat, lon, radius, layers }) {
   const key = [lat, lon, radius, layers.railways].join("|");
   if (featureCache.has(key)) return featureCache.get(key);
 
-  const features = await post("/api/features?v=2", {
+  const features = await post("/api/features?v=3", {
     lat,
     lon,
     radius,
