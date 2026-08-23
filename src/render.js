@@ -59,7 +59,9 @@ export function renderSvg(opts) {
     const stroke = strokeWidth
       ? ` stroke="${preset.ink}" stroke-width="${strokeWidth}" stroke-linejoin="round"`
       : "";
-    groups.push(`<path d="${d}" fill="${fill}" fill-rule="evenodd"${stroke} />`);
+    // Vector tiles include buffered overlap beyond each tile edge. evenodd
+    // cancels those overlaps into straight seams; nonzero keeps them filled.
+    groups.push(`<path d="${d}" fill="${fill}" fill-rule="nonzero"${stroke} />`);
   };
 
   const lines = (layer, stroke, base, dash = "") => {
