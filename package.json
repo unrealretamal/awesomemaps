@@ -13,8 +13,8 @@
     "vite": "^7.1.5"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.120.0",
     "@mapbox/vector-tile": "^3.0.0",
+    "openai": "^7.5.0",
     "pbf": "^5.1.2"
   }
 }
