@@ -122,7 +122,7 @@ function bindSlider(id, format, onInput) {
 
 function buildColorRows() {
   $("color-rows").innerHTML = COLOR_KEYS.map((key) => {
-    const layer = LAYERS.find((l) => l.id === key);
+    const layer = LAYERS.find((l) => l.id === key) ?? { name: "Landmarks" };
     return `
       <div class="color-row">
         <label class="color-row__swatch" style="background:${state.colors[key]}">

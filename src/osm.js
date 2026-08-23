@@ -31,7 +31,7 @@ export async function fetchFeatures({ lat, lon, radius, layers }) {
   const key = [lat, lon, radius, layers.railways].join("|");
   if (featureCache.has(key)) return featureCache.get(key);
 
-  const features = await post("/api/features?v=3", {
+  const features = await post("/api/features?v=4", {
     lat,
     lon,
     radius,
@@ -45,7 +45,9 @@ export async function fetchFeatures({ lat, lon, radius, layers }) {
 export function countFeatures(features, layers, mapDetails) {
   const visible = Object.entries(layers)
     .filter(([, on]) => on)
-    .reduce((total, [layer]) => total + (features[layer]?.length ?? 0), 0);
+    .reduce((total, [layer]) => total + (layer === "mainroads"
+      ? features.roads?.filter(({ w }) => w >= 1.1).length ?? 0
+      : features[layer]?.length ?? 0), 0);
   const details = mapDetails === "landmarks" ? features.landmarks?.length ?? 0
     : mapDetails === "transit" ? features.transit?.length ?? 0
       : mapDetails === "all" ? (features.landmarks?.length ?? 0) + (features.transit?.length ?? 0)

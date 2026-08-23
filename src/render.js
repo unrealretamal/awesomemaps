@@ -127,18 +127,20 @@ const CITY_TRANSIT = Object.fromEntries([
 
 const normalizePlace = (value) => String(value || "").toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
-function cityTransitIcon(place) {
+function cityTransitIcon(place, labelColor = "white") {
   const candidates = [place.city, place.search, place.label]
     .flatMap((value) => String(value || "").split(","))
     .map(normalizePlace);
   const entry = Object.entries(CITY_TRANSIT).find(([name]) => candidates.includes(normalizePlace(name)))?.[1];
   if (!entry) return null;
   if (entry === "roundel") return `<circle r="5"/><path d="M-8 0H8" stroke-width="3"/>`;
-  return `<text text-anchor="middle" dominant-baseline="central" font-family="JetBrains Mono,monospace" font-size="${entry.length > 2 ? 4 : 7}" font-weight="700" fill="currentColor" stroke="none">${entry}</text>`;
+  const shape = entry === "U" ? `<rect x="-7" y="-7" width="14" height="14" rx="2" fill="currentColor"/>`
+    : `<circle r="7" fill="currentColor"/>`;
+  return `${shape}<text text-anchor="middle" dominant-baseline="central" font-family="JetBrains Mono,monospace" font-size="${entry.length > 2 ? 3.5 : 7}" font-weight="700" fill="${labelColor}" stroke="none">${entry}</text>`;
 }
 
-function detailIcon(kind, mode, place) {
-  if (mode === "metro" || kind === "subway_entrance") return cityTransitIcon(place) || DETAIL_ICONS.metro;
+function detailIcon(kind, mode, place, labelColor) {
+  if (mode === "metro" || kind === "subway_entrance") return cityTransitIcon(place, labelColor) || DETAIL_ICONS.metro;
   if (mode === "train") return DETAIL_ICONS.train;
   if (kind === "tram_stop") return DETAIL_ICONS.tram;
   if (kind === "station" || kind === "halt") return DETAIL_ICONS.train;
@@ -169,16 +171,16 @@ export function renderSvg(opts) {
 
   const area = (layer, fill, strokeWidth = 0) => {
     if (!layers[layer] || !features[layer]?.length) return;
-    const d = features[layer].map((ring) => toPath(ring, true)).join("");
-    if (!d) return;
     // Never outline tile-clipped area fragments: their artificial closing edges
     // form straight horizontal/vertical lines across the finished map.
     const stroke = strokeWidth
       ? ` stroke="${preset.ink}" stroke-width="${strokeWidth}" stroke-linejoin="round"`
       : "";
-    // Vector tiles include buffered overlap beyond each tile edge. evenodd
-    // cancels those overlaps into straight seams; nonzero keeps them filled.
-    groups.push(`<path d="${d}" fill="${fill}" fill-rule="nonzero"${stroke} />`);
+    for (const feature of features[layer]) {
+      const rings = Array.isArray(feature[0]) ? feature : [feature];
+      const d = rings.map((ring) => toPath(ring, true)).join("");
+      if (d) groups.push(`<path d="${d}" fill="${fill}" fill-rule="evenodd"${stroke} />`);
+    }
   };
 
   const lines = (layer, stroke, base, dash = "") => {
@@ -197,21 +199,36 @@ export function renderSvg(opts) {
     }
   };
 
+  const mainRoads = () => {
+    if (!layers.mainroads || !features.roads?.length) return;
+    const major = features.roads.filter(({ w }) => w >= 1.1);
+    if (!major.length) return;
+    const d = major.map(({ p }) => toPath(p, false)).join("");
+    groups.push(
+      `<path d="${d}" fill="none" stroke="${colors.landmarks || preset.ink}" ` +
+      `stroke-width="${Math.max(opts.roadWidth * 0.7, 1.5)}" stroke-opacity="0.8" ` +
+      `stroke-linecap="round" stroke-linejoin="round" />`
+    );
+  };
+
   area("water", colors.water);
   area("greenery", colors.greenery);
-  lines("roads", colors.roads, opts.roadWidth);
-  lines("railways", preset.ink, Math.max(opts.roadWidth * 0.5, 1), ' stroke-dasharray="6 5"');
   area("buildings", colors.buildings);
+  lines("roads", colors.roads, opts.roadWidth);
+  mainRoads();
+  lines("railways", preset.ink, Math.max(opts.roadWidth * 0.5, 1), ' stroke-dasharray="6 5"');
 
   const showLandmarks = mapDetails === "landmarks" || mapDetails === "all";
   const showTransit = mapDetails === "transit" || mapDetails === "all";
   const marker = ({ p: [x, y], n, k, m }) => {
     const worship = k.startsWith("worship:");
+    const color = colors.landmarks || preset.ink;
+    const localTransit = m === "metro" && cityTransitIcon(place, preset.paper);
     return (
     `<g transform="translate(${x / PRECISION} ${y / PRECISION})">` +
-    (worship ? "" : `<circle r="10" fill="${preset.paper}" stroke="${preset.ink}" stroke-width="2"/>`) +
-    `<g color="${preset.ink}" fill="none" stroke="currentColor" stroke-width="1.5" ` +
-    `stroke-linecap="round" stroke-linejoin="round">${detailIcon(k, m, place)}</g>` +
+    (worship || localTransit ? "" : `<circle r="10" fill="${preset.paper}" stroke="${color}" stroke-width="2"/>`) +
+    `<g color="${color}" fill="none" stroke="currentColor" stroke-width="1.5" ` +
+    `stroke-linecap="round" stroke-linejoin="round">${detailIcon(k, m, place, preset.paper)}</g>` +
     `<title>${escape(n)}</title></g>`
     );
   };

@@ -126,29 +126,42 @@ function collect(layer, mapper, closed, onRing) {
   }
 }
 
-function decodeTile(entry, project, features, sizedBuildings, withBuildings) {
+function collectAreas(layer, mapper, onArea) {
+  if (!layer) return;
+  for (let i = 0; i < layer.length; i += 1) {
+    const feature = layer.feature(i);
+    const encoded = feature.loadGeometry()
+      .map((ring) => encodeRing(ring.map(mapper), true))
+      .filter(Boolean);
+    if (!encoded.length) continue;
+    const area = encoded.length === 1 ? encoded[0].ring : encoded.map(({ ring }) => ring);
+    onArea(area, feature.properties, Math.max(...encoded.map(({ extent }) => extent)));
+  }
+}
+
+function decodeTile(entry, project, features, sizedBuildings, subwayPoints, withBuildings) {
   const { tile } = entry;
 
   const mapperFor = (layer) => tilePointMapper(entry, layer.extent, project);
 
   const buildings = withBuildings ? tile.layers.buildings : null;
   if (buildings) {
-    collect(buildings, mapperFor(buildings), true, (encoded) => {
-      features.buildings.push(encoded.ring);
-      sizedBuildings.push(encoded);
+    collectAreas(buildings, mapperFor(buildings), (area, _props, extent) => {
+      features.buildings.push(area);
+      sizedBuildings.push({ ring: area, extent });
     });
   }
 
   // `water_polygons` covers rivers/lakes. Coast and open sea live separately
   // in Shortbread's `ocean` layer and must be merged into same visual layer.
   for (const water of [tile.layers.ocean, tile.layers.water_polygons]) {
-    if (water) collect(water, mapperFor(water), true, (e) => features.water.push(e.ring));
+    if (water) collectAreas(water, mapperFor(water), (area) => features.water.push(area));
   }
 
   const land = tile.layers.land;
   if (land) {
-    collect(land, mapperFor(land), true, (encoded, props) => {
-      if (GREEN_KINDS.has(props.kind)) features.greenery.push(encoded.ring);
+    collectAreas(land, mapperFor(land), (area, props) => {
+      if (GREEN_KINDS.has(props.kind)) features.greenery.push(area);
     });
   }
 
@@ -159,6 +172,16 @@ function decodeTile(entry, project, features, sizedBuildings, withBuildings) {
       const kind = props.kind;
       if (RAIL_KINDS.has(kind)) {
         features.railways.push({ w: 1, p: encoded.ring });
+        if (kind === "subway") {
+          let x = encoded.ring[0];
+          let y = encoded.ring[1];
+          subwayPoints.push([x, y]);
+          for (let i = 2; i < encoded.ring.length; i += 2) {
+            x += encoded.ring[i];
+            y += encoded.ring[i + 1];
+            subwayPoints.push([x, y]);
+          }
+        }
         return;
       }
       const weight = ROAD_WEIGHT[kind];
@@ -196,8 +219,7 @@ function decodeTile(entry, project, features, sizedBuildings, withBuildings) {
       const projected = mapper(point);
       if (inFrame(projected)) {
         const mode = props.kind === "tram_stop" ? "tram"
-          : props.kind === "subway_entrance" || /(^|\s)(U|M|Metro)(\s|$)/i.test(props.name) ? "metro"
-            : "train";
+          : props.kind === "subway_entrance" ? "metro" : "train";
         features.transit.push({ p: projected, n: props.name, k: props.kind, m: mode });
       }
     }
@@ -230,8 +252,19 @@ export async function fetchFeatures({ lat, lon, radius, railways }) {
   const project = projector(lat, lon, safeRadius);
   const features = emptyFeatures();
   const sizedBuildings = [];
+  const subwayPoints = [];
   const withBuildings = grid.length <= BUILDING_TILE_LIMIT;
-  for (const tile of tiles) decodeTile(tile, project, features, sizedBuildings, withBuildings);
+  for (const tile of tiles) decodeTile(tile, project, features, sizedBuildings, subwayPoints, withBuildings);
+
+  // Shortbread station points do not expose mode. Promote only stations close
+  // to actual subway geometry; mainline stations retain train icon.
+  const subwayThresholdSquared = 500 ** 2; // 100 m at 1 km radius; scales with frame.
+  for (const station of features.transit) {
+    if (station.k !== "station" && station.k !== "halt") continue;
+    if (subwayPoints.some(([x, y]) => (x - station.p[0]) ** 2 + (y - station.p[1]) ** 2 <= subwayThresholdSquared)) {
+      station.m = "metro";
+    }
+  }
 
   const nearestUnique = (points, limit) => {
     const seen = new Set();
