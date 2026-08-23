@@ -6,6 +6,7 @@
 // delta-encoded point list.
 
 import { shapeById } from "./presets.js";
+import { METRO_LOGOS } from "./generated/metro-logos.js";
 
 const SIZE = 1000;
 const PRECISION = 10;
@@ -20,6 +21,23 @@ function toPath(ring, closed) {
     d += `L${x / PRECISION} ${y / PRECISION}`;
   }
   return closed ? `${d}Z` : d;
+}
+
+function readableLine(ring) {
+  let x = ring[0], y = ring[1];
+  const points = [[x, y]];
+  for (let i = 2; i < ring.length; i += 2) {
+    x += ring[i]; y += ring[i + 1]; points.push([x, y]);
+  }
+  const [firstX] = points[0];
+  const [lastX] = points.at(-1);
+  if (lastX >= firstX) return ring;
+  const reversed = points.reverse();
+  const out = [...reversed[0]];
+  for (let i = 1; i < reversed.length; i += 1) {
+    out.push(reversed[i][0] - reversed[i - 1][0], reversed[i][1] - reversed[i - 1][1]);
+  }
+  return out;
 }
 
 /**
@@ -131,8 +149,11 @@ function cityTransitIcon(place, labelColor = "white") {
   const candidates = [place.city, place.search, place.label]
     .flatMap((value) => String(value || "").split(","))
     .map(normalizePlace);
-  const entry = Object.entries(CITY_TRANSIT).find(([name]) => candidates.includes(normalizePlace(name)))?.[1];
+  const match = Object.entries(CITY_TRANSIT).find(([name]) => candidates.includes(normalizePlace(name)));
+  const entry = match?.[1];
   if (!entry) return null;
+  const logo = METRO_LOGOS[normalizePlace(match[0])];
+  if (logo) return `<image href="${logo.data}" x="-9" y="-9" width="18" height="18" preserveAspectRatio="xMidYMid meet"/>`;
   if (entry === "roundel") return `<circle r="5"/><path d="M-8 0H8" stroke-width="3"/>`;
   const shape = entry === "U" ? `<rect x="-7" y="-7" width="14" height="14" rx="2" fill="currentColor"/>`
     : `<circle r="7" fill="currentColor"/>`;
@@ -211,11 +232,24 @@ export function renderSvg(opts) {
     );
   };
 
+  const roadNames = () => {
+    if (!layers.roadnames || !features.roadNames?.length) return;
+    const labels = features.roadNames.map(({ n, p }, index) => {
+      const id = `road-name-${index}`;
+      return `<path id="${id}" d="${toPath(readableLine(p), false)}" fill="none"/>` +
+        `<text fill="${colors.landmarks || preset.ink}" font-family="JetBrains Mono,monospace" ` +
+        `font-size="9" letter-spacing="0.4" paint-order="stroke" stroke="${preset.paper}" stroke-width="3">` +
+        `<textPath href="#${id}" startOffset="50%" text-anchor="middle">${escape(n)}</textPath></text>`;
+    }).join("");
+    groups.push(`<g aria-label="Main road names">${labels}</g>`);
+  };
+
   area("water", colors.water);
   area("greenery", colors.greenery);
   area("buildings", colors.buildings);
   lines("roads", colors.roads, opts.roadWidth);
   mainRoads();
+  roadNames();
   lines("railways", preset.ink, Math.max(opts.roadWidth * 0.5, 1), ' stroke-dasharray="6 5"');
 
   const showLandmarks = mapDetails === "landmarks" || mapDetails === "all";
@@ -241,22 +275,42 @@ export function renderSvg(opts) {
   }
 
   const frame = frameOf(shape);
+  const metroLogo = (() => {
+    const candidates = [place.city, place.search, place.label]
+      .flatMap((value) => String(value || "").split(","))
+      .map(normalizePlace);
+    const city = Object.keys(CITY_TRANSIT).find((name) => candidates.includes(normalizePlace(name)));
+    return city ? METRO_LOGOS[normalizePlace(city)] : null;
+  })();
   const credit = attribution
     ? `<text x="${SIZE / 2}" y="${frame.y + frame.h - 24}" text-anchor="middle" ` +
       `font-family="JetBrains Mono, monospace" font-size="16" fill="${preset.ink}">` +
       `© OpenStreetMap contributors</text>`
+    : "";
+  const logoCredit = attribution && metroLogo
+    ? `<text x="${SIZE / 2}" y="${frame.y + frame.h - 10}" text-anchor="middle" ` +
+      `font-family="JetBrains Mono, monospace" font-size="7" fill="${preset.ink}">` +
+      `Transit mark: ${escape(metroLogo.author)} · ${escape(metroLogo.license)} · ` +
+      `<a href="${escape(metroLogo.source)}">Wikimedia Commons source</a></text>`
+    : "";
+  const metadata = metroLogo
+    ? `<metadata>Transit logo: ${escape(metroLogo.title)}; author: ${escape(metroLogo.author)}; ` +
+      `license: ${escape(metroLogo.license)}; source: ${escape(metroLogo.source)}</metadata>`
     : "";
 
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" ` +
     `viewBox="${frame.x} ${frame.y} ${frame.w} ${frame.h}" ` +
     `role="img" aria-label="Map of ${escape(place.label)}">` +
+    metadata +
     `<defs><clipPath id="crop">${clipShape(shape)}</clipPath></defs>` +
     `<g clip-path="url(#crop)">` +
     `<rect x="${frame.x}" y="${frame.y}" width="${frame.w}" height="${frame.h}" fill="${preset.paper}" />` +
     groups.join("") +
+    `</g>` +
     credit +
-    `</g></svg>`
+    logoCredit +
+    `</svg>`
   );
 }
 

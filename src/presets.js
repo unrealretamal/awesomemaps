@@ -7,6 +7,7 @@ export const LAYERS = [
   { id: "greenery", name: "Greenery", on: true },
   { id: "roads", name: "Roads", on: true },
   { id: "mainroads", name: "Highlight main roads", on: false },
+  { id: "roadnames", name: "Main road names", on: false },
   { id: "railways", name: "Railways", on: false },
 ];
 

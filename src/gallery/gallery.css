@@ -128,6 +128,40 @@
   gap: 24px;
 }
 
+.gal-grid > .gal-card--hero {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(240px, .8fr);
+  align-items: stretch;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--bg-panel), var(--bg-well));
+}
+
+.gal-grid > .gal-card--hero .gal-view {
+  height: clamp(320px, 52vw, 560px);
+}
+
+.gal-grid > .gal-card--hero .gal-lens {
+  width: min(500px, 80%);
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.gal-card--hero .gal-lens__outer { width: 96%; height: 96%; }
+.gal-card--hero .gal-lens__inner { width: 90%; height: 90%; }
+.gal-card--hero .gal-lens__map { width: 85%; height: 85%; }
+
+.gal-grid > .gal-card--hero .gal-meta {
+  justify-content: flex-end;
+  padding: 24px;
+}
+
+.gal-card--hero .gal-city__name {
+  font-size: clamp(30px, 4vw, 56px);
+  line-height: .95;
+  letter-spacing: -.04em;
+}
+
 .gal-card {
   display: flex;
   flex-direction: column;
@@ -213,10 +247,9 @@
 /* map-rect (5:79) */
 .gal-rect {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  width: min(278px, 48%);
-  height: 216px;
+  inset: 14px;
+  width: calc(100% - 28px);
+  height: calc(100% - 28px);
   border: 0.5px solid var(--accent);
   border-radius: var(--radius);
   object-fit: cover;
@@ -373,6 +406,10 @@
     flex-wrap: wrap;
     gap: 16px 20px;
   }
+
+  .gal-grid > .gal-card--hero {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 560px) {
@@ -393,7 +430,4 @@
     flex: 1 0 40%;
   }
 
-  .gal-rect {
-    width: min(278px, 60%);
-  }
 }

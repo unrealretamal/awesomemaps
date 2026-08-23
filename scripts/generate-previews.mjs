@@ -25,6 +25,8 @@ const CIRCLE_PX = 172;
 const RECT_PX = 278;
 
 const CITIES = [
+  { slug: "berlin",         lat: 52.52,    lon: 13.405,    preset: "nori",     shape: "circle", ratio: 16000, px: CIRCLE_PX, roadWidth: 2 },
+  { slug: "madrid",         lat: 40.4168,  lon: -3.7038,   preset: "terracotta", shape: "square", ratio: 18000, px: RECT_PX, roadWidth: 2 },
   { slug: "lisbon",         lat: 38.7223,  lon: -9.1393,   preset: "default",  shape: "circle", ratio: 15000, px: CIRCLE_PX, roadWidth: 2 },
   { slug: "tokyo",          lat: 35.6764,  lon: 139.65,    preset: "midnight", shape: "square", ratio: 25000, px: RECT_PX,   roadWidth: 1.5 },
   { slug: "new-york",       lat: 40.7128,  lon: -74.006,   preset: "mono",     shape: "circle", ratio: 18000, px: CIRCLE_PX, roadWidth: 2 },
@@ -36,7 +38,7 @@ const CITIES = [
 ];
 
 // The homepage hero lens, and the home page's own file naming.
-const HERO = { slug: "hero-circle", lat: 38.7223, lon: -9.1393, preset: "default", shape: "circle", ratio: 14000, px: 240, roadWidth: 2.5 };
+const HERO = { slug: "hero-circle", lat: 52.52, lon: 13.405, preset: "nori", shape: "circle", ratio: 14000, px: 240, roadWidth: 2.5 };
 const HOME_ALIASES = { "new-york": "newyork" };
 
 const LAYERS = {
@@ -45,7 +47,8 @@ const LAYERS = {
   greenery: true,
   roads: true,
   railways: false,
-  amenities: false,
+  mainroads: true,
+  roadnames: false,
 };
 
 async function render(entry) {
@@ -66,7 +69,7 @@ async function render(entry) {
     colors: preset.colors,
     layers: LAYERS,
     shape: entry.shape,
-    place: { lat: entry.lat, lon: entry.lon, label: entry.slug },
+    place: { lat: entry.lat, lon: entry.lon, label: entry.slug, city: entry.slug, search: entry.slug },
     radius,
     roadWidth: entry.roadWidth,
   });

@@ -12,6 +12,8 @@ import gridLineV from "../assets/gallery/grid-line-v.png";
 import compassOuter from "../assets/gallery/compass-outer.png";
 import compassInner from "../assets/gallery/compass-inner.svg";
 import mapLisbon from "../assets/gallery/map-lisbon.webp";
+import mapBerlin from "../assets/gallery/map-berlin.webp";
+import mapMadrid from "../assets/gallery/map-madrid.webp";
 import mapTokyo from "../assets/gallery/map-tokyo.webp";
 import mapNewYork from "../assets/gallery/map-new-york.webp";
 import mapCairo from "../assets/gallery/map-cairo.webp";
@@ -35,8 +37,10 @@ import mapParis from "../assets/gallery/map-paris.webp";
 
 /** @type {City[]} */
 const CITIES = [
+  { city: "Berlin", country: "Germany", tag: "Rail & Grid", lat: 52.52, lon: 13.405, scale: "1 : 16,000", id: "OSM-BER-16", shape: "circle", image: mapBerlin },
+  { city: "Madrid", country: "Spain", tag: "Warm Geometry", lat: 40.4168, lon: -3.7038, scale: "1 : 18,000", id: "OSM-MAD-18", shape: "rect", image: mapMadrid },
+  { city: "Tokyo", country: "Japan", tag: "High Density", lat: 35.6764, lon: 139.65, scale: "1 : 25,000", id: "OSM-TYO-25", shape: "rect", image: mapTokyo },
   { city: "Lisbon", country: "Portugal", tag: "Urban Grid", lat: 38.7223, lon: -9.1393, scale: "1 : 15,000", id: "OSM-15", shape: "circle", image: mapLisbon },
-  { city: "Tokyo", country: "Japan", tag: "High Density", lat: 35.6764, lon: 139.65, scale: "1 : 25,000", id: "OSM-15", shape: "rect", image: mapTokyo },
   { city: "New York", country: "United States", tag: "Topographic", lat: 40.7128, lon: -74.006, scale: "1 : 18,000", id: "OSM-15", shape: "circle", image: mapNewYork },
   { city: "Cairo", country: "Egypt", tag: "River Coast", lat: 30.0444, lon: 31.2357, scale: "1 : 30,000", id: "OSM-15", shape: "rect", image: mapCairo },
   { city: "Sydney", country: "Australia", tag: "Coastline", lat: -33.8688, lon: 151.2093, scale: "1 : 20,000", id: "OSM-15", shape: "rect", image: mapSydney },
@@ -102,16 +106,15 @@ function coordinates({ lat, lon }) {
   return `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? "N" : "S"}, ${Math.abs(lon).toFixed(4)}° ${lon >= 0 ? "E" : "W"}`;
 }
 
-function card(entry) {
+function card(entry, index) {
   return `
-    <a class="gal-card" href="/generator?q=${encodeURIComponent(entry.city)}">
+    <a class="gal-card${index === 0 ? " gal-card--hero" : ""}" href="/generator?q=${encodeURIComponent(entry.city)}">
       <div class="gal-view">
         ${technicalGrid()}
         ${preview(entry)}
         ${ticks(entry)
           .map(([corner, label]) => `<span class="gal-tick gal-tick--${corner}">${label}</span>`)
           .join("")}
-        <span class="gal-scale">${escape(entry.scale)}</span>
       </div>
       <div class="gal-meta">
         <div class="gal-meta__head">
@@ -143,9 +146,9 @@ function pageMarkup() {
 
     <section class="gal-intro">
       <div class="gal-intro__title">
-        <span class="gal-eyebrow">Exhibit No. 01</span>
-        <h1>AWESOMEMAPS</h1>
-        <p>A curated digital gallery showcasing the geometry of human habitats. High-contrast vector alignments, organic costal boundaries, and terrain elevation matrices.</p>
+        <span class="gal-eyebrow">Cities as portraits</span>
+        <h1>THE CITY<br/>LOOKS BACK.</h1>
+        <p>Berlin, Madrid and Tokyo lead a growing atlas of human geometry. Every piece is generated from live OpenStreetMap data, then dressed like a print.</p>
       </div>
       <div class="gal-stats">
         ${STATS.map(

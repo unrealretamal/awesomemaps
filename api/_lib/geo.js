@@ -70,7 +70,7 @@ export function encodeRing(points, closed) {
 export function emptyFeatures() {
   return {
     buildings: [], water: [], greenery: [], roads: [], railways: [],
-    landmarks: [], transit: [],
+    landmarks: [], transit: [], roadNames: [],
   };
 }
 

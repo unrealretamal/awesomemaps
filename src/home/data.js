@@ -1,9 +1,9 @@
 import { PRESETS, SHAPES } from "../presets.js";
 // Homepage content (Figma node 5:314). Card data drives both the featured
 // strip (5:365) and the gallery preview (5:584) — same card, two grids.
-import mapLisbon from "../assets/home/map-lisbon.webp";
+import mapBerlin from "../assets/home/map-berlin.webp";
+import mapMadrid from "../assets/home/map-madrid.webp";
 import mapTokyo from "../assets/home/map-tokyo.webp";
-import mapSydney from "../assets/home/map-sydney.webp";
 import mapNewYork from "../assets/home/map-newyork.webp";
 import mapCairo from "../assets/home/map-cairo.webp";
 import mapReykjavik from "../assets/home/map-reykjavik.webp";
@@ -11,15 +11,26 @@ import mapParis from "../assets/home/map-paris.webp";
 
 export const FEATURED = [
   {
-    city: "Lisbon",
-    country: "Portugal",
-    tag: "Urban Grid",
-    lat: "38.7223° N",
-    lon: "9.1393° W",
-    code: "OSM-LIS-15",
-    scale: "1 : 15,000",
+    city: "Berlin",
+    country: "Germany",
+    tag: "Rail & Grid",
+    lat: "52.5200° N",
+    lon: "13.4050° E",
+    code: "OSM-BER-16",
+    scale: "1 : 16,000",
     shape: "circle",
-    img: mapLisbon,
+    img: mapBerlin,
+  },
+  {
+    city: "Madrid",
+    country: "Spain",
+    tag: "Warm Geometry",
+    lat: "40.4168° N",
+    lon: "3.7038° W",
+    code: "OSM-MAD-18",
+    scale: "1 : 18,000",
+    shape: "rect",
+    img: mapMadrid,
   },
   {
     city: "Tokyo",
@@ -31,17 +42,6 @@ export const FEATURED = [
     scale: "1 : 25,000",
     shape: "rect",
     img: mapTokyo,
-  },
-  {
-    city: "Sydney",
-    country: "Australia",
-    tag: "Coastline",
-    lat: "33.8688° S",
-    lon: "151.2093° E",
-    code: "OSM-SYD-18",
-    scale: "1 : 20,000",
-    shape: "rect",
-    img: mapSydney,
   },
 ];
 

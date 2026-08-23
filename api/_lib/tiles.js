@@ -19,6 +19,7 @@ const BUILDING_TILE_LIMIT = 36;
 const TILE_TIMEOUT_MS = 12000;
 const MAX_LANDMARKS = 60;
 const MAX_TRANSIT = 100;
+const MAX_ROAD_NAMES = 30;
 
 const M_PER_DEG_LAT = 110574;
 const M_PER_DEG_LON = 111320;
@@ -46,6 +47,7 @@ const ROAD_WEIGHT = {
   residential: 0.7,
   living_street: 0.6,
 };
+const NAMED_ROAD_KINDS = new Set(["motorway", "trunk", "primary", "secondary", "tertiary"]);
 
 const LANDMARK_AMENITIES = new Set(["arts_centre", "museum", "theatre", "place_of_worship"]);
 const LANDMARK_TOURISM = new Set(["attraction", "museum", "viewpoint"]);
@@ -189,6 +191,16 @@ function decodeTile(entry, project, features, sizedBuildings, subwayPoints, with
     });
   }
 
+  const streetLabels = tile.layers.street_labels;
+  if (streetLabels) {
+    const mapper = mapperFor(streetLabels);
+    collect(streetLabels, mapper, false, (encoded, props) => {
+      if (props.name && NAMED_ROAD_KINDS.has(props.kind)) {
+        features.roadNames.push({ n: props.name, p: encoded.ring, k: props.kind });
+      }
+    });
+  }
+
   const pois = tile.layers.pois;
   if (pois) {
     const mapper = mapperFor(pois);
@@ -278,8 +290,36 @@ export async function fetchFeatures({ lat, lon, radius, railways }) {
       })
       .slice(0, limit);
   };
+  const nearestUniqueBy = (points, limit, position) => {
+    const seen = new Set();
+    return points
+      .sort((a, b) => {
+        const [ax, ay] = position(a), [bx, by] = position(b);
+        return (ax - 5000) ** 2 + (ay - 5000) ** 2 - ((bx - 5000) ** 2 + (by - 5000) ** 2);
+      })
+      .filter((point) => {
+        const [x, y] = position(point);
+        const key = `${point.k}|${point.n}|${Math.round(x / 20)}|${Math.round(y / 20)}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .slice(0, limit);
+  };
   features.landmarks = nearestUnique(features.landmarks, MAX_LANDMARKS);
   features.transit = nearestUnique(features.transit, MAX_TRANSIT);
+  features.roadNames = nearestUniqueBy(
+    features.roadNames.map((road) => ({ ...road, p: road.p, center: (() => {
+      let x = road.p[0], y = road.p[1];
+      const points = [[x, y]];
+      for (let i = 2; i < road.p.length; i += 2) {
+        x += road.p[i]; y += road.p[i + 1]; points.push([x, y]);
+      }
+      return points[Math.floor(points.length / 2)];
+    })() })),
+    MAX_ROAD_NAMES,
+    (road) => road.center,
+  );
 
   // Railway lines are opt-in; landmark/transit points stay small and power
   // the client-side detail dropdown without another network request.
