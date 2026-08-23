@@ -111,7 +111,23 @@
 }
 
 .site-nav--focused {
-  justify-content: space-between;
+  justify-content: flex-start;
+  padding-right: 48px;
+  padding-left: 48px;
+}
+
+/* Authored home glyph — inlined so it takes the link's colour on hover. */
+.site-nav__icon {
+  display: flex;
+  flex: none;
+  width: 14px;
+  height: 14px;
+}
+
+.site-nav__icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 @media (max-width: 860px) {
