@@ -145,6 +145,25 @@ body {
   border-color: var(--accent-line);
 }
 
+.detail-field {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 10px;
+  color: var(--text-3);
+}
+
+.select {
+  width: 100%;
+  height: 33px;
+  padding: 0 9px;
+  color: var(--text-2);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font: inherit;
+}
+
 /* ── Grids / buttons ─────────────────────────────────────────────── */
 .grid {
   display: grid;

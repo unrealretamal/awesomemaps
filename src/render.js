@@ -47,7 +47,7 @@ const escape = (text) =>
  * @param {boolean} [opts.attribution]  stamp the OSM credit inside the artwork
  */
 export function renderSvg(opts) {
-  const { features, preset, colors, layers, shape, place, attribution = false } = opts;
+  const { features, preset, colors, layers, shape, place, mapDetails = "none", attribution = false } = opts;
   const groups = [];
 
   const area = (layer, fill, strokeWidth = 0) => {
@@ -80,19 +80,24 @@ export function renderSvg(opts) {
   area("greenery", colors.greenery);
   lines("roads", colors.roads, opts.roadWidth);
   lines("railways", preset.ink, Math.max(opts.roadWidth * 0.5, 1), ' stroke-dasharray="6 5"');
-  area("buildings", colors.buildings, 0.6);
+  area("buildings", colors.buildings);
 
-  if (layers.amenities && features.amenities?.length) {
-    const points = features.amenities;
-    let x = points[0];
-    let y = points[1];
-    let dots = `<circle cx="${x / PRECISION}" cy="${y / PRECISION}" r="2.5" />`;
-    for (let i = 2; i < points.length; i += 2) {
-      x += points[i];
-      y += points[i + 1];
-      dots += `<circle cx="${x / PRECISION}" cy="${y / PRECISION}" r="2.5" />`;
-    }
-    groups.push(`<g fill="${preset.ink}">${dots}</g>`);
+  const showLandmarks = mapDetails === "landmarks" || mapDetails === "all";
+  const showTransit = mapDetails === "transit" || mapDetails === "all";
+  const marker = ({ p: [x, y], n, k }, symbol) =>
+    `<g transform="translate(${x / PRECISION} ${y / PRECISION})">` +
+    `<circle r="8" fill="${preset.paper}" stroke="${preset.ink}" stroke-width="2"/>` +
+    `<text text-anchor="middle" dominant-baseline="central" font-family="JetBrains Mono,monospace" ` +
+    `font-size="8" font-weight="700" fill="${preset.ink}">${symbol(k)}</text>` +
+    `<title>${escape(n)}</title></g>`;
+
+  if (showLandmarks && features.landmarks?.length) {
+    const icon = (kind) => kind === "museum" ? "M" : kind === "theatre" ? "T" : kind === "viewpoint" ? "V" : "◆";
+    groups.push(`<g aria-label="Landmarks">${features.landmarks.map((point) => marker(point, icon)).join("")}</g>`);
+  }
+  if (showTransit && features.transit?.length) {
+    const icon = (kind) => kind === "tram_stop" ? "T" : kind === "subway_entrance" ? "M" : "S";
+    groups.push(`<g aria-label="Metro and rail stations">${features.transit.map((point) => marker(point, icon)).join("")}</g>`);
   }
 
   const credit = attribution

@@ -17,7 +17,8 @@ const MAX_ZOOM = 14; // Shortbread carries buildings only at the top zoom.
 const MAX_TILES = 49;
 const BUILDING_TILE_LIMIT = 36;
 const TILE_TIMEOUT_MS = 12000;
-const MAX_AMENITIES = 6000;
+const MAX_LANDMARKS = 60;
+const MAX_TRANSIT = 100;
 
 const M_PER_DEG_LAT = 110574;
 const M_PER_DEG_LON = 111320;
@@ -44,11 +45,12 @@ const ROAD_WEIGHT = {
   unclassified: 0.7,
   residential: 0.7,
   living_street: 0.6,
-  pedestrian: 0.45,
-  service: 0.45,
-  track: 0.4,
-  cycleway: 0.35,
 };
+
+const LANDMARK_AMENITIES = new Set(["arts_centre", "museum", "theatre", "place_of_worship"]);
+const LANDMARK_TOURISM = new Set(["attraction", "museum", "viewpoint"]);
+const TRANSIT_KINDS = new Set(["station", "halt", "tram_stop", "subway_entrance"]);
+const inFrame = ([x, y]) => x >= 0 && x <= 10000 && y >= 0 && y <= 10000;
 
 /* ── Tile maths ────────────────────────────────────────────────── */
 
@@ -164,10 +166,30 @@ function decodeTile(entry, project, features, sizedBuildings, withBuildings) {
   const pois = tile.layers.pois;
   if (pois) {
     const mapper = mapperFor(pois);
-    for (let i = 0; i < pois.length && features.amenities.length < MAX_AMENITIES * 2; i += 1) {
-      for (const ring of pois.feature(i).loadGeometry()) {
-        for (const point of ring) features.amenities.push(...mapper(point));
-      }
+    for (let i = 0; i < pois.length; i += 1) {
+      const feature = pois.feature(i);
+      const props = feature.properties;
+      if (!props.name || !(props.historic || LANDMARK_AMENITIES.has(props.amenity) || LANDMARK_TOURISM.has(props.tourism))) continue;
+      const point = feature.loadGeometry()[0]?.[0];
+      if (!point) continue;
+      const projected = mapper(point);
+      if (!inFrame(projected)) continue;
+      const kind = props.historic ? "historic" : props.amenity || props.tourism || "landmark";
+      features.landmarks.push({ p: projected, n: props.name, k: kind });
+    }
+  }
+
+  const transport = tile.layers.public_transport;
+  if (transport) {
+    const mapper = mapperFor(transport);
+    for (let i = 0; i < transport.length; i += 1) {
+      const feature = transport.feature(i);
+      const props = feature.properties;
+      if (!props.name || !TRANSIT_KINDS.has(props.kind)) continue;
+      const point = feature.loadGeometry()[0]?.[0];
+      if (!point) continue;
+      const projected = mapper(point);
+      if (inFrame(projected)) features.transit.push({ p: projected, n: props.name, k: props.kind });
     }
   }
 }
@@ -177,7 +199,7 @@ function decodeTile(entry, project, features, sizedBuildings, withBuildings) {
 const MAX_RADIUS = 6000;
 const MIN_RADIUS = 100;
 
-export async function fetchFeatures({ lat, lon, radius, railways, amenities }) {
+export async function fetchFeatures({ lat, lon, radius, railways }) {
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
     throw new UpstreamError("Invalid coordinates", 400);
   }
@@ -201,13 +223,28 @@ export async function fetchFeatures({ lat, lon, radius, railways, amenities }) {
   const withBuildings = grid.length <= BUILDING_TILE_LIMIT;
   for (const tile of tiles) decodeTile(tile, project, features, sizedBuildings, withBuildings);
 
-  // These two are opt-in in the UI; the tiles carry them either way.
+  const nearestUnique = (points, limit) => {
+    const seen = new Set();
+    return points
+      .sort((a, b) => (a.p[0] - 5000) ** 2 + (a.p[1] - 5000) ** 2 - ((b.p[0] - 5000) ** 2 + (b.p[1] - 5000) ** 2))
+      .filter((point) => {
+        const key = `${point.k}|${point.n}|${Math.round(point.p[0] / 20)}|${Math.round(point.p[1] / 20)}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .slice(0, limit);
+  };
+  features.landmarks = nearestUnique(features.landmarks, MAX_LANDMARKS);
+  features.transit = nearestUnique(features.transit, MAX_TRANSIT);
+
+  // Railway lines are opt-in; landmark/transit points stay small and power
+  // the client-side detail dropdown without another network request.
   if (!railways) features.railways = [];
-  if (!amenities) features.amenities = [];
 
   fitPayload(features, sizedBuildings);
   return features;
 }
 
-/** Amenities and railways ride along in the same tiles, so one cache key fits all. */
+/** Detail points and railways ride along in the same tiles, so one cache key fits all. */
 export { MAX_RADIUS, MIN_RADIUS };

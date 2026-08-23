@@ -28,24 +28,27 @@ export async function geocode(query) {
 }
 
 export async function fetchFeatures({ lat, lon, radius, layers }) {
-  const key = [lat, lon, radius, layers.railways, layers.amenities].join("|");
+  const key = [lat, lon, radius, layers.railways].join("|");
   if (featureCache.has(key)) return featureCache.get(key);
 
-  const features = await post("/api/features", {
+  const features = await post("/api/features?v=2", {
     lat,
     lon,
     radius,
     railways: layers.railways,
-    amenities: layers.amenities,
   });
   featureCache.set(key, features);
   return features;
 }
 
 /** Total number of geometries, used to warn on empty areas. */
-export function countFeatures(features) {
-  return Object.values(features).reduce(
-    (total, list) => total + (Array.isArray(list) ? list.length : 0),
-    0
-  );
+export function countFeatures(features, layers, mapDetails) {
+  const visible = Object.entries(layers)
+    .filter(([, on]) => on)
+    .reduce((total, [layer]) => total + (features[layer]?.length ?? 0), 0);
+  const details = mapDetails === "landmarks" ? features.landmarks?.length ?? 0
+    : mapDetails === "transit" ? features.transit?.length ?? 0
+      : mapDetails === "all" ? (features.landmarks?.length ?? 0) + (features.transit?.length ?? 0)
+        : 0;
+  return visible + details;
 }

@@ -5,13 +5,12 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return sendJson(res, 405, { error: "Use POST" });
 
   try {
-    const { lat, lon, radius, railways, amenities } = await readJson(req);
+    const { lat, lon, radius, railways } = await readJson(req);
     const features = await fetchFeatures({
       lat: Number(lat),
       lon: Number(lon),
       radius: Number(radius),
       railways: Boolean(railways),
-      amenities: Boolean(amenities),
     });
 
     // Never cache an empty frame: far more likely a bad upstream day than a

@@ -68,7 +68,10 @@ export function encodeRing(points, closed) {
 }
 
 export function emptyFeatures() {
-  return { buildings: [], water: [], greenery: [], roads: [], railways: [], amenities: [] };
+  return {
+    buildings: [], water: [], greenery: [], roads: [], railways: [],
+    landmarks: [], transit: [],
+  };
 }
 
 // Vercel caps a function response at 4.5 MB; stay comfortably under it.
@@ -81,9 +84,6 @@ const MAX_PAYLOAD = 3_200_000;
  */
 export function fitPayload(features, sizedBuildings) {
   const size = () => JSON.stringify(features).length;
-  if (size() <= MAX_PAYLOAD) return;
-
-  features.amenities = [];
   if (size() <= MAX_PAYLOAD) return;
 
   for (const threshold of [15, 25, 40, 60, 100]) {

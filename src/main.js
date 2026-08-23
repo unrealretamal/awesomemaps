@@ -22,6 +22,7 @@ const state = {
   shape: "circle",
   radius: 1000,
   roadWidth: 2,
+  mapDetails: "none",
   features: null,
   note: "",
   fetchedWith: null,
@@ -157,6 +158,7 @@ function currentSvg(attribution = false) {
     place: state.place,
     radius: state.radius,
     roadWidth: state.roadWidth,
+    mapDetails: state.mapDetails,
     attribution,
   });
 }
@@ -245,7 +247,6 @@ function fetchKey() {
     state.query.trim().toLowerCase(),
     state.radius,
     state.layers.railways,
-    state.layers.amenities,
   ].join("|");
 }
 
@@ -278,7 +279,7 @@ async function generate() {
 
     draw();
     syncMeta();
-    const count = countFeatures(state.features);
+    const count = countFeatures(state.features, state.layers, state.mapDetails);
     setStatus(count ? "" : "No features found here — try a larger radius", !count);
   } catch (error) {
     setStatus(error.message, true);
@@ -348,13 +349,18 @@ function init() {
     state.layers[id] = !state.layers[id];
     button.setAttribute("aria-pressed", String(state.layers[id]));
 
-    // Railways and amenities are not part of the base query — they need a refetch.
-    if (state.layers[id] && (id === "railways" || id === "amenities") && state.place) {
+    // Railway lines need a refetch; all other layers are already in the payload.
+    if (state.layers[id] && id === "railways" && state.place) {
       generate();
     } else {
       draw();
       markStale();
     }
+  });
+
+  $("map-details").addEventListener("change", (event) => {
+    state.mapDetails = event.target.value;
+    draw();
   });
 
   $("generate-btn").addEventListener("click", generate);

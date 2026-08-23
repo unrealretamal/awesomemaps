@@ -7,7 +7,6 @@ export const LAYERS = [
   { id: "greenery", name: "Greenery", on: true },
   { id: "roads", name: "Roads", on: true },
   { id: "railways", name: "Railways", on: false },
-  { id: "amenities", name: "Amenities", on: false },
 ];
 
 // Order shown in the "Layer Colors" panel.
