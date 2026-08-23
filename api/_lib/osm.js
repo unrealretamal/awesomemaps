@@ -15,6 +15,7 @@ const USER_AGENT = "awesomemaps/0.1 (+https://github.com/unrealretamal/awesomema
 
 const MAX_RADIUS = 6000;
 const MIN_RADIUS = 100;
+const MIRROR_TIMEOUT_MS = 20000;
 
 export class UpstreamError extends Error {
   constructor(message, status = 502) {
@@ -237,12 +238,12 @@ export async function fetchFeatures({ lat, lon, radius, railways, amenities }) {
   });
 
   let lastError;
-  let empties = 0;
-  // Public Overpass instances allow two concurrent slots per IP; a short wait
-  // is usually enough to get one.
+  // Public Overpass instances allow two concurrent slots per IP, and the
+  // shared cloud egress we sit behind is heavily used — so walk the mirrors,
+  // pause, then walk them once more before giving up.
   for (const endpoint of [...OVERPASS_MIRRORS, "retry", ...OVERPASS_MIRRORS]) {
     if (endpoint === "retry") {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       continue;
     }
     try {
@@ -250,6 +251,7 @@ export async function fetchFeatures({ lat, lon, radius, railways, amenities }) {
         method: "POST",
         body,
         headers: { "User-Agent": USER_AGENT },
+        signal: AbortSignal.timeout(MIRROR_TIMEOUT_MS),
       });
       if (res.status === 429 || res.status === 504) {
         lastError = new Error(`${endpoint} busy (${res.status})`);
@@ -267,11 +269,9 @@ export async function fetchFeatures({ lat, lon, radius, railways, amenities }) {
         continue;
       }
       if (!json.elements?.length) {
-        // A genuinely empty area (open sea, desert) is a valid answer, but so
-        // is a throttled mirror: only believe it if a second mirror agrees.
-        empties += 1;
+        // Throttled mirrors return an empty 200 too, and we cannot tell that
+        // apart from open sea — so never treat it as a successful frame.
         lastError = new Error("empty response");
-        if (empties >= 2) return compact([], safeRadius, lat, lon);
         continue;
       }
       return compact(json.elements, safeRadius, lat, lon);
@@ -280,7 +280,8 @@ export async function fetchFeatures({ lat, lon, radius, railways, amenities }) {
     }
   }
   throw new UpstreamError(
-    `Overpass is busy right now — try again in a moment (${lastError?.message ?? "unknown"})`,
+    `OpenStreetMap's Overpass API is throttling us — press Generate Map again ` +
+      `(${lastError?.message ?? "unknown"})`,
     503
   );
 }
