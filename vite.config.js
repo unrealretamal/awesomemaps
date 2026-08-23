@@ -2,11 +2,12 @@ import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import geocode from "./api/geocode.js";
 import features from "./api/features.js";
+import note from "./api/note.js";
 
 // `vite dev` does not run Vercel functions, so mount the same handlers as
 // middleware. One implementation, both runtimes.
 function apiRoutes() {
-  const routes = { "/api/geocode": geocode, "/api/features": features };
+  const routes = { "/api/geocode": geocode, "/api/features": features, "/api/note": note };
 
   return {
     name: "api-routes",

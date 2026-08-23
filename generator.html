@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Generator — AwesomeMaps</title>
     <meta name="description" content="Generate poster-style maps of any neighbourhood from OpenStreetMap data. Export SVG or PNG." />
-    <link rel="icon" href="/icons/logo.svg" />
+    <link rel="icon" type="image/png" href="/icons/brand-mark.png" />
+    <link rel="apple-touch-icon" href="/icons/brand-mark.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
@@ -104,6 +105,13 @@
             <!-- svg is injected here -->
           </figure>
           <p class="canvas__caption" id="canvas-caption">Bairro Alto, Lisbon</p>
+          <div class="spinner" id="spinner" role="status" aria-live="polite" hidden>
+            <div class="spinner__dial">
+              <span class="spinner__ring"></span>
+              <img class="spinner__mark" id="spinner-mark" src="" alt="" width="28" height="28" />
+            </div>
+            <p class="spinner__label" id="spinner-label">Reading tiles…</p>
+          </div>
           <div class="status" id="status" hidden></div>
         </div>
       </main>

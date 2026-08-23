@@ -772,3 +772,80 @@ body {
     flex-basis: 100%;
   }
 }
+
+/* ── Generation spinner ──────────────────────────────────────────── */
+.spinner {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: rgba(11, 12, 14, 0.82);
+  backdrop-filter: blur(2px);
+}
+
+.spinner[hidden] {
+  display: none;
+}
+
+.spinner__dial {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+}
+
+/* Dashed ring, echoing the compass rings on the gallery cards. */
+.spinner__ring {
+  position: absolute;
+  inset: 0;
+  border: 1px dashed var(--accent);
+  border-radius: 999px;
+  opacity: 0.55;
+  animation: spinner-rotate 3.2s linear infinite;
+}
+
+.spinner__mark {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius);
+  animation: spinner-pulse 1.6s ease-in-out infinite;
+}
+
+.spinner__label {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--text-2);
+  text-transform: uppercase;
+}
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinner-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner__ring,
+  .spinner__mark {
+    animation: none;
+  }
+}

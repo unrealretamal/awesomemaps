@@ -68,10 +68,6 @@ export const SHAPES = [
 // Keys are lowercase substrings matched against the resolved place label (the
 // geocoder returns e.g. "Bairro Alto, Misericordia", not the typed query), so
 // only places we have a note for show one; everything else hides the slot.
-export const LOCATION_NOTES = {
-  "bairro alto": "One of the best spots in Lisbon so far",
-};
-
 export const LOCATION_PRESETS = [
   "Montmartre, Paris",
   "Bairro Alto, Lisbon",

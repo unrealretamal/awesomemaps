@@ -1,7 +1,7 @@
 import "./style.css";
 import { brandMark, mountIcons } from "./icons.js";
 import { mountNav } from "./shared/nav.js";
-import { COLOR_KEYS, LAYERS, LOCATION_NOTES, LOCATION_PRESETS, PRESETS, SHAPES } from "./presets.js";
+import { COLOR_KEYS, LAYERS, LOCATION_PRESETS, PRESETS, SHAPES } from "./presets.js";
 import { countFeatures, fetchFeatures, geocode } from "./osm.js";
 import { renderPlaceholder, renderSvg } from "./render.js";
 import { exportPng, exportSvg } from "./export.js";
@@ -10,6 +10,8 @@ const $ = (id) => document.getElementById(id);
 
 // The gallery links here as /generator?q=Lisbon, so a card opens the map it shows.
 const requestedQuery = new URLSearchParams(location.search).get("q")?.trim();
+
+const noteCache = new Map();
 
 const state = {
   query: requestedQuery || "Bairro Alto, Lisbon",
@@ -21,6 +23,7 @@ const state = {
   radius: 1000,
   roadWidth: 2,
   features: null,
+  note: "",
   fetchedWith: null,
   busy: false,
 };
@@ -168,10 +171,7 @@ function syncMeta() {
   $("canvas-caption").textContent = label;
   $("topbar-meta").textContent = `${state.radius}m · ${state.shape}`;
 
-  const haystack = `${label} ${state.query}`.toLowerCase();
-  const note = Object.entries(LOCATION_NOTES).find(([key]) => haystack.includes(key))?.[1] ?? "";
-  $("topbar-note").textContent = note;
-  $("topbar-note").hidden = !note;
+  setNote(state.note);
 
   const r = state.radius / 1000;
   const areaByShape = {
@@ -187,6 +187,37 @@ function syncMeta() {
   $("info-zoom").textContent = String(Math.max(1, Math.round(zoom)));
 }
 
+function setNote(note) {
+  const el = $("topbar-note");
+  el.textContent = note ?? "";
+  el.hidden = !note;
+}
+
+/**
+ * A one-line caption for the place, written by Claude. Decoration: if it fails
+ * or no API key is configured, the line stays hidden and nothing else changes.
+ */
+async function loadNote(place) {
+  const key = `${place.label}|${place.lat}|${place.lon}`;
+  if (noteCache.has(key)) return void setNote(noteCache.get(key));
+
+  try {
+    const res = await fetch("/api/note", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ place: place.label, lat: place.lat, lon: place.lon }),
+    });
+    const { note = "" } = await res.json();
+    noteCache.set(key, note);
+    // Ignore a note that arrived after the user moved on.
+    if (state.place?.label !== place.label) return;
+    state.note = note;
+    setNote(note);
+  } catch {
+    setNote("");
+  }
+}
+
 function setStatus(message, isError = false) {
   const el = $("status");
   el.hidden = !message;
@@ -195,6 +226,19 @@ function setStatus(message, isError = false) {
 }
 
 /* ── Generation ────────────────────────────────────────────────── */
+
+// A generation usually resolves in well under a second, and cached frames come
+// back instantly. The wait is held open deliberately so the render reads as a
+// render; drop this to 0 to go as fast as the data allows.
+const MIN_GENERATION_MS = 5000;
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function setSpinner(label) {
+  const el = $("spinner");
+  el.hidden = !label;
+  if (label) $("spinner-label").textContent = label;
+}
 
 function fetchKey() {
   return [
@@ -210,12 +254,17 @@ async function generate() {
   state.busy = true;
   $("generate-btn").disabled = true;
 
-  try {
-    setStatus("Locating…");
-    state.place = await geocode(state.query);
-    syncMeta();
+  const started = performance.now();
+  setStatus("");
+  setSpinner("Locating…");
 
-    setStatus("Fetching OpenStreetMap data…");
+  try {
+    state.place = await geocode(state.query);
+    state.note = "";
+    syncMeta();
+    loadNote(state.place);
+
+    setSpinner("Reading vector tiles…");
     state.features = await fetchFeatures({
       lat: state.place.lat,
       lon: state.place.lon,
@@ -224,6 +273,9 @@ async function generate() {
     });
     state.fetchedWith = fetchKey();
 
+    setSpinner("Projecting layers…");
+    await wait(Math.max(0, MIN_GENERATION_MS - (performance.now() - started)));
+
     draw();
     syncMeta();
     const count = countFeatures(state.features);
@@ -231,6 +283,7 @@ async function generate() {
   } catch (error) {
     setStatus(error.message, true);
   } finally {
+    setSpinner(null);
     state.busy = false;
     $("generate-btn").disabled = false;
   }
@@ -251,6 +304,7 @@ function init() {
   mountNav("generator");
   mountIcons();
   $("brand-mark").src = brandMark;
+  $("spinner-mark").src = brandMark;
   if (requestedQuery) $("location-input").value = requestedQuery;
   buildLocationPresets();
   buildPresets();
