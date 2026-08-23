@@ -1,5 +1,6 @@
 import "./style.css";
 import { brandMark, mountIcons } from "./icons.js";
+import { mountNav } from "./shared/nav.js";
 import { COLOR_KEYS, LAYERS, LOCATION_NOTES, LOCATION_PRESETS, PRESETS, SHAPES } from "./presets.js";
 import { countFeatures, fetchFeatures, geocode } from "./osm.js";
 import { renderPlaceholder, renderSvg } from "./render.js";
@@ -7,8 +8,11 @@ import { exportPng, exportSvg } from "./export.js";
 
 const $ = (id) => document.getElementById(id);
 
+// The gallery links here as /generator?q=Lisbon, so a card opens the map it shows.
+const requestedQuery = new URLSearchParams(location.search).get("q")?.trim();
+
 const state = {
-  query: "Bairro Alto, Lisbon",
+  query: requestedQuery || "Bairro Alto, Lisbon",
   place: null,
   preset: PRESETS[0],
   colors: { ...PRESETS[0].colors },
@@ -244,8 +248,10 @@ function markStale() {
 /* ── Wiring ────────────────────────────────────────────────────── */
 
 function init() {
+  mountNav("generator");
   mountIcons();
   $("brand-mark").src = brandMark;
+  if (requestedQuery) $("location-input").value = requestedQuery;
   buildLocationPresets();
   buildPresets();
   buildShapes();

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generator — AwesomeMaps</title>
+    <meta name="description" content="Generate poster-style maps of any neighbourhood from OpenStreetMap data. Export SVG or PNG." />
+    <link rel="icon" href="/icons/logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <header id="site-nav"></header>
+
+    <div class="app">
+      <!-- ── Left sidebar ─────────────────────────────────────────── -->
+      <aside class="sidebar sidebar--left">
+        <div class="brand">
+          <span class="brand__mark"><img id="brand-mark" src="" alt="" width="20" height="20" /></span>
+          <span class="brand__name">AwesomeMaps</span>
+          <span class="tag">v2</span>
+        </div>
+
+        <section class="panel">
+          <h2 class="panel__label">Location</h2>
+          <div class="field">
+            <i class="icon field__icon" data-icon="pin"></i>
+            <input
+              id="location-input"
+              class="input"
+              type="text"
+              value="Bairro Alto, Lisbon"
+              autocomplete="off"
+              spellcheck="false"
+              aria-label="Location"
+            />
+          </div>
+          <div class="grid grid--2 grid--tight" id="location-presets"></div>
+        </section>
+
+        <section class="panel">
+          <h2 class="panel__label">Style Preset</h2>
+          <div class="grid grid--2" id="preset-grid"></div>
+        </section>
+
+        <section class="panel">
+          <h2 class="panel__label">Crop Shape</h2>
+          <div class="shapes" id="shape-row"></div>
+        </section>
+
+        <section class="panel panel--last">
+          <h2 class="panel__label">Parameters</h2>
+
+          <div class="slider">
+            <div class="slider__head">
+              <span class="slider__name">Radius</span>
+              <span class="slider__value" id="radius-value">1000m</span>
+            </div>
+            <input id="radius" class="range" type="range" min="250" max="6000" step="50" value="1000" aria-label="Radius" />
+          </div>
+
+          <div class="slider">
+            <div class="slider__head">
+              <span class="slider__name">Road Width</span>
+              <span class="slider__value" id="roadwidth-value">2</span>
+            </div>
+            <input id="roadwidth" class="range" type="range" min="0" max="14" step="0.5" value="2" aria-label="Road width" />
+          </div>
+        </section>
+      </aside>
+
+      <!-- ── Main ─────────────────────────────────────────────────── -->
+      <main class="main">
+        <div class="topbar">
+          <div class="topbar__place">
+            <i class="icon" data-icon="dot"></i>
+            <span id="topbar-place">Bairro Alto, Lisbon</span>
+          </div>
+          <div class="topbar__meta">
+            <span class="tag" id="topbar-meta">1000m · circle</span>
+            <span class="topbar__note" id="topbar-note" hidden></span>
+          </div>
+          <div class="menu">
+            <button class="btn btn--ghost" id="export-btn" aria-haspopup="true" aria-expanded="false">
+              <i class="icon" data-icon="download"></i>
+              <span>Export</span>
+              <i class="icon" data-icon="chevron"></i>
+            </button>
+            <div class="menu__list" id="export-menu" hidden>
+              <button class="menu__item" data-export="svg">SVG</button>
+              <button class="menu__item" data-export="png">PNG · 4096</button>
+            </div>
+          </div>
+          <button class="btn btn--primary" id="generate-btn">
+            <i class="icon" data-icon="generate"></i>
+            <span>Generate Map</span>
+          </button>
+        </div>
+
+        <div class="canvas-wrap">
+          <div class="canvas-grid" aria-hidden="true"></div>
+          <figure class="canvas" id="canvas">
+            <!-- svg is injected here -->
+          </figure>
+          <p class="canvas__caption" id="canvas-caption">Bairro Alto, Lisbon</p>
+          <div class="status" id="status" hidden></div>
+        </div>
+      </main>
+
+      <!-- ── Right sidebar ────────────────────────────────────────── -->
+      <aside class="sidebar sidebar--right">
+        <section class="panel">
+          <h2 class="panel__label">Layer Colors</h2>
+          <div id="color-rows"></div>
+        </section>
+
+        <section class="panel">
+          <h2 class="panel__label">Layers</h2>
+          <div id="layer-rows"></div>
+        </section>
+
+        <section class="panel">
+          <h2 class="panel__label">Info</h2>
+          <dl class="info">
+            <div class="info__row"><dt>Area</dt><dd id="info-area">3.14 km²</dd></div>
+            <div class="info__row"><dt>Zoom</dt><dd id="info-zoom">15</dd></div>
+            <div class="info__row"><dt>Source</dt><dd>OpenStreetMap</dd></div>
+            <div class="info__row"><dt>Format</dt><dd>4096 × 4096</dd></div>
+          </dl>
+        </section>
+
+        <footer class="credits">
+          <p>© OpenStreetMap contributors</p>
+          <p>prettymaps by marceloprates</p>
+        </footer>
+      </aside>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

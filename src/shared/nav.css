@@ -1,0 +1,99 @@
+/* Site navigation (Figma node 5:315), shared by every page. */
+.site-nav {
+  /* Sticky on the long scrolling pages; a no-op inside the generator, whose
+     body is a fixed-height flex column that never scrolls. */
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px var(--page-gutter);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-app);
+}
+
+.site-nav__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+  text-decoration: none;
+}
+
+.site-nav__mark {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+
+.site-nav__name {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text-1);
+  white-space: nowrap;
+}
+
+.site-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  min-width: 0;
+}
+
+.site-nav__link {
+  font-size: 14px;
+  color: var(--text-2);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-nav__link:hover {
+  color: var(--text-1);
+}
+
+.site-nav__link[aria-current="page"] {
+  color: var(--accent);
+}
+
+.site-nav__cta {
+  flex: none;
+  padding: 8px 16px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--bg-app);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.site-nav__cta:hover {
+  background: #5fd8cf;
+  border-color: #5fd8cf;
+}
+
+@media (max-width: 860px) {
+  .site-nav {
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    padding: 12px var(--page-gutter);
+  }
+
+  .site-nav__links {
+    order: 3;
+    flex-basis: 100%;
+    gap: 20px;
+    overflow-x: auto;
+  }
+
+  .site-nav__link {
+    font-size: 13px;
+  }
+}

@@ -1,3 +1,4 @@
+import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import geocode from "./api/geocode.js";
 import features from "./api/features.js";
@@ -23,6 +24,33 @@ function apiRoutes() {
   };
 }
 
+// In dev, Vercel's clean URLs do not apply, so map /generator → /generator.html.
+function cleanUrls(pages) {
+  return {
+    name: "clean-urls",
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        const [path, query = ""] = req.url.split("?");
+        const page = path.replace(/\/$/, "");
+        if (pages.includes(page.slice(1))) {
+          req.url = `${page}.html${query ? `?${query}` : ""}`;
+        }
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [apiRoutes()],
+  appType: "mpa",
+  plugins: [apiRoutes(), cleanUrls(["generator", "gallery"])],
+  build: {
+    rollupOptions: {
+      input: {
+        home: resolve(process.cwd(), "index.html"),
+        generator: resolve(process.cwd(), "generator.html"),
+        gallery: resolve(process.cwd(), "gallery.html"),
+      },
+    },
+  },
 });

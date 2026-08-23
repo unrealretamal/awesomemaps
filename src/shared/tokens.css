@@ -1,0 +1,49 @@
+/* Design tokens shared by every page (from Figma, nodes 1:2 / 5:5 / 5:314). */
+:root {
+  --bg-app: #0b0c0e;
+  --bg-panel: #0d0f12;
+  --bg-input: #13151a;
+  --bg-well: #090b0e;
+  --border: #1e2129;
+  --text-1: #e8e9eb;
+  --text-2: #9da3ae;
+  --text-3: #636b78;
+  --text-4: #3a3f4a;
+  --accent: #4ecdc4;
+  --accent-soft: rgba(78, 205, 196, 0.05);
+  --accent-line: rgba(78, 205, 196, 0.7);
+  --radius: 4px;
+  --page-gutter: 80px;
+  /* Measured, not the 73px the Figma frame reports: 20px padding x2 + 35px
+     content + 1px border. */
+  --nav-height: 76px;
+  --font: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-alt: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-app);
+  color: var(--text-1);
+  font-family: var(--font);
+  font-size: 12px;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --page-gutter: 24px;
+  }
+}
