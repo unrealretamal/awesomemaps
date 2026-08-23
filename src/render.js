@@ -54,9 +54,9 @@ export function renderSvg(opts) {
     if (!layers[layer] || !features[layer]?.length) return;
     const d = features[layer].map((ring) => toPath(ring, true)).join("");
     if (!d) return;
-    const stroke = strokeWidth
-      ? ` stroke="${preset.ink}" stroke-width="${strokeWidth}" stroke-linejoin="round"`
-      : "";
+    // Vector tiles split contiguous land/water at tile boundaries. A same-colour
+    // hairline overlap removes browser antialias seams between those fragments.
+    const stroke = ` stroke="${strokeWidth ? preset.ink : fill}" stroke-width="${strokeWidth || 0.5}" stroke-linejoin="round"`;
     groups.push(`<path d="${d}" fill="${fill}" fill-rule="evenodd"${stroke} />`);
   };
 
