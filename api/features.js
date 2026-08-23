@@ -1,4 +1,5 @@
-import { fetchFeatures, readJson, sendJson, UpstreamError } from "./_lib/osm.js";
+import { readJson, sendJson, UpstreamError } from "./_lib/http.js";
+import { fetchFeatures } from "./_lib/tiles.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return sendJson(res, 405, { error: "Use POST" });
@@ -12,8 +13,9 @@ export default async function handler(req, res) {
       railways: Boolean(railways),
       amenities: Boolean(amenities),
     });
-    // Never cache an empty frame: it is far more likely a throttled upstream
-    // than a genuinely featureless place, and the edge would serve it for a day.
+
+    // Never cache an empty frame: far more likely a bad upstream day than a
+    // genuinely featureless place, and the edge would serve it for a day.
     const isEmpty = Object.values(features).every((list) => list.length === 0);
     return sendJson(res, 200, features, isEmpty ? 0 : 86400);
   } catch (error) {
