@@ -13,8 +13,10 @@ import {
   about,
   footer,
 } from "./sections.js";
+import { inject } from '@vercel/analytics';
 
 mountNav("home");
+inject();
 
 const host = document.getElementById("home");
 if (host) {
