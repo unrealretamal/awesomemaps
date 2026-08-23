@@ -239,21 +239,21 @@ body {
 
 /* ── Crop shape ──────────────────────────────────────────────────── */
 .shapes {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 6px;
 }
 
 .shape {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 8px 0;
+  padding: 8px 2px;
   background: var(--bg-input);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  font-size: 10px;
+  font-size: 9px;
   line-height: 15px;
   letter-spacing: 0.25px;
   text-transform: uppercase;
@@ -518,7 +518,7 @@ body {
 .canvas {
   position: relative;
   width: min(560px, 100%);
-  aspect-ratio: 1;
+  aspect-ratio: var(--canvas-aspect, 1);
   max-height: 100%;
   margin: 0;
 }

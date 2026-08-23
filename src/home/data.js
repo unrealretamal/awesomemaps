@@ -1,3 +1,4 @@
+import { PRESETS, SHAPES } from "../presets.js";
 // Homepage content (Figma node 5:314). Card data drives both the featured
 // strip (5:365) and the gallery preview (5:584) — same card, two grids.
 import mapLisbon from "../assets/home/map-lisbon.webp";
@@ -109,9 +110,10 @@ export const STEPS = [
   },
 ];
 
+// Counts come from the source of truth so they cannot drift from the app.
 export const STATS = [
-  { value: "6", label: "Style Presets", accent: true },
-  { value: "3", label: "Crop Shapes", accent: false },
+  { value: String(PRESETS.length), label: "Style Presets", accent: true },
+  { value: String(SHAPES.length), label: "Crop Shapes", accent: false },
   { value: "∞", label: "Custom Variations", accent: false },
   { value: "OSM", label: "Data Powered", accent: true },
 ];

@@ -27,7 +27,8 @@ export function exportSvg(svg, name) {
   download(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }), `${slugify(name)}.svg`);
 }
 
-export async function exportPng(svg, name, size = PNG_SIZE) {
+/** @param {{width:number,height:number}} [size] defaults to a 4096px square */
+export async function exportPng(svg, name, size = { width: PNG_SIZE, height: PNG_SIZE }) {
   const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
   try {
     const image = await new Promise((resolve, reject) => {
@@ -38,9 +39,9 @@ export async function exportPng(svg, name, size = PNG_SIZE) {
     });
 
     const canvas = document.createElement("canvas");
-    canvas.width = size;
-    canvas.height = size;
-    canvas.getContext("2d").drawImage(image, 0, 0, size, size);
+    canvas.width = Math.round(size.width);
+    canvas.height = Math.round(size.height);
+    canvas.getContext("2d").drawImage(image, 0, 0, canvas.width, canvas.height);
 
     const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
     if (!blob) throw new Error("Could not encode the PNG");

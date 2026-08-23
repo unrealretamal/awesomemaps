@@ -2,8 +2,11 @@ import "./style.css";
 import { brandMark, mountIcons } from "./icons.js";
 import { mountNav } from "./shared/nav.js";
 import { COLOR_KEYS, LAYERS, LOCATION_PRESETS, PRESETS, SHAPES } from "./presets.js";
+
+// The longest edge of a PNG export; the short edge follows the crop ratio.
+const EXPORT_LONG_EDGE = 4096;
 import { countFeatures, fetchFeatures, geocode } from "./osm.js";
-import { renderPlaceholder, renderSvg } from "./render.js";
+import { frameOf, renderPlaceholder, renderSvg } from "./render.js";
 import { exportPng, exportSvg } from "./export.js";
 
 const $ = (id) => document.getElementById(id);
@@ -167,6 +170,32 @@ function draw() {
   $("canvas").innerHTML = currentSvg();
 }
 
+/** PNG export size: long edge fixed, short edge from the crop ratio. */
+function exportSize() {
+  const { w, h } = frameOf(state.shape);
+  const scale = EXPORT_LONG_EDGE / Math.max(w, h);
+  return { width: Math.round(w * scale), height: Math.round(h * scale) };
+}
+
+/** Ground area actually inside the crop, in km². */
+function areaKm2() {
+  const { w, h } = frameOf(state.shape);
+  const kmPerUnit = (state.radius * 2) / 1000 / 1000;
+  const width = w * kmPerUnit;
+  const height = h * kmPerUnit;
+  const short = Math.min(width, height);
+
+  if (state.shape === "circle") return Math.PI * (short / 2) ** 2;
+  if (state.shape === "hexagon") return ((3 * Math.sqrt(3)) / 2) * (short / 2) ** 2;
+  if (state.shape === "diamond") return (width * height) / 2;
+  // Arch: a rectangle capped with a semicircle of the frame's width.
+  if (state.shape === "arch") {
+    const r = width / 2;
+    return width * (height - r) + (Math.PI * r * r) / 2;
+  }
+  return width * height;
+}
+
 function syncMeta() {
   const label = state.place?.label ?? state.query;
   $("topbar-place").textContent = label;
@@ -175,13 +204,10 @@ function syncMeta() {
 
   setNote(state.note);
 
-  const r = state.radius / 1000;
-  const areaByShape = {
-    circle: Math.PI * r * r,
-    square: 4 * r * r,
-    hexagon: ((3 * Math.sqrt(3)) / 2) * r * r,
-  };
-  $("info-area").textContent = `${areaByShape[state.shape].toFixed(2)} km²`;
+  $("info-area").textContent = `${areaKm2().toFixed(2)} km²`;
+  const { width, height } = exportSize();
+  $("info-format").textContent = `${width} × ${height}`;
+  $("canvas").style.setProperty("--canvas-aspect", `${width} / ${height}`);
 
   const lat = state.place?.lat ?? 0;
   const metresPerPixel = (state.radius * 2) / 1000;
@@ -386,7 +412,7 @@ function init() {
         exportSvg(currentSvg(true), name);
       } else {
         setStatus("Rendering PNG…");
-        await exportPng(currentSvg(true), name);
+        await exportPng(currentSvg(true), name, exportSize());
         setStatus("");
       }
     } catch (error) {

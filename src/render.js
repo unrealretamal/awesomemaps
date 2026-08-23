@@ -5,6 +5,8 @@
 // bare rings, roads and railways are { w: weight, p: ring }, amenities are one
 // delta-encoded point list.
 
+import { shapeById } from "./presets.js";
+
 const SIZE = 1000;
 const PRECISION = 10;
 
@@ -20,18 +22,56 @@ function toPath(ring, closed) {
   return closed ? `${d}Z` : d;
 }
 
+/**
+ * The frame cut out of the 1000-unit projection for a shape, as viewBox parts.
+ * Rectangular shapes crop the same map rather than distorting it.
+ */
+export function frameOf(shape) {
+  const { w, h } = shapeById(shape);
+  return { x: (SIZE - w) / 2, y: (SIZE - h) / 2, w, h };
+}
+
+const r1 = (n) => Math.round(n * 10) / 10;
+
 function clipShape(shape) {
-  if (shape === "square") return `<rect width="${SIZE}" height="${SIZE}" />`;
+  const { x, y, w, h } = frameOf(shape);
+  const cx = SIZE / 2;
+  const cy = SIZE / 2;
+
+  if (shape === "circle") {
+    return `<circle cx="${cx}" cy="${cy}" r="${Math.min(w, h) / 2}" />`;
+  }
+
   if (shape === "hexagon") {
-    const r = SIZE / 2;
+    const r = Math.min(w, h) / 2;
     const points = Array.from({ length: 6 }, (_, i) => {
       const angle = ((60 * i - 90) * Math.PI) / 180;
-      const round = (n) => Math.round(n * 10) / 10;
-      return `${round(r + r * Math.cos(angle))},${round(r + r * Math.sin(angle))}`;
+      return `${r1(cx + r * Math.cos(angle))},${r1(cy + r * Math.sin(angle))}`;
     });
     return `<polygon points="${points.join(" ")}" />`;
   }
-  return `<circle cx="${SIZE / 2}" cy="${SIZE / 2}" r="${SIZE / 2}" />`;
+
+  if (shape === "diamond") {
+    const points = [
+      `${cx},${y}`,
+      `${x + w},${cy}`,
+      `${cx},${y + h}`,
+      `${x},${cy}`,
+    ];
+    return `<polygon points="${points.join(" ")}" />`;
+  }
+
+  if (shape === "arch") {
+    // Rectangle with a semicircular top — the classic poster silhouette.
+    const r = w / 2;
+    return (
+      `<path d="M${x} ${y + h}V${y + r}A${r} ${r} 0 0 1 ${x + w} ${y + r}` +
+      `V${y + h}Z" />`
+    );
+  }
+
+  // square, portrait, landscape, panorama: the frame itself
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" />`;
 }
 
 const escape = (text) =>
@@ -52,9 +92,50 @@ const DETAIL_ICONS = {
   landmark: `<path d="M0-7 2-2l5 2-5 2-2 5-2-5-5-2 5-2z"/>`,
 };
 
-function detailIcon(kind, mode) {
+// Compact local-system catalogue for 100 major metro areas. Marks are
+// intentionally drawn, not copied trademark artwork; they stay legible in SVG.
+const CITY_TRANSIT = Object.fromEntries([
+  ["london", "roundel"], ["paris", "M"], ["new york", "NYC"], ["tokyo", "M"],
+  ["berlin", "U"], ["madrid", "M"], ["barcelona", "M"], ["lisboa", "M"],
+  ["lisbon", "M"], ["rome", "M"], ["roma", "M"], ["milan", "M"],
+  ["milano", "M"], ["vienna", "U"], ["wien", "U"], ["prague", "M"],
+  ["praha", "M"], ["budapest", "M"], ["warsaw", "M"], ["warszawa", "M"],
+  ["amsterdam", "M"], ["brussels", "M"], ["bruxelles", "M"], ["copenhagen", "M"],
+  ["stockholm", "T"], ["oslo", "T"], ["helsinki", "M"], ["dublin", "DART"],
+  ["zurich", "S"], ["zürich", "S"], ["munich", "U"], ["münchen", "U"],
+  ["hamburg", "U"], ["frankfurt", "U"], ["athens", "M"], ["istanbul", "M"],
+  ["moscow", "M"], ["kyiv", "M"], ["bucharest", "M"], ["sofia", "M"],
+  ["belgrade", "BG"], ["zagreb", "ZET"], ["dubai", "M"], ["doha", "M"],
+  ["riyadh", "M"], ["cairo", "M"], ["tel aviv", "R"], ["delhi", "M"],
+  ["mumbai", "M"], ["kolkata", "M"], ["bengaluru", "M"], ["chennai", "M"],
+  ["hyderabad", "M"], ["bangkok", "M"], ["singapore", "MRT"], ["kuala lumpur", "MRT"],
+  ["jakarta", "MRT"], ["manila", "MRT"], ["hong kong", "MTR"], ["beijing", "M"],
+  ["shanghai", "M"], ["guangzhou", "M"], ["shenzhen", "M"], ["seoul", "M"],
+  ["taipei", "MRT"], ["osaka", "M"], ["kyoto", "M"], ["nagoya", "M"],
+  ["sapporo", "M"], ["fukuoka", "M"], ["sydney", "T"], ["melbourne", "T"],
+  ["brisbane", "T"], ["perth", "T"], ["auckland", "AT"], ["toronto", "TTC"],
+  ["montreal", "M"], ["montréal", "M"], ["vancouver", "T"], ["chicago", "L"],
+  ["boston", "T"], ["washington", "M"], ["san francisco", "BART"], ["los angeles", "M"],
+  ["seattle", "L"], ["philadelphia", "SEPTA"], ["miami", "M"], ["atlanta", "MARTA"],
+  ["mexico city", "M"], ["ciudad de méxico", "M"], ["guadalajara", "SITEUR"], ["monterrey", "M"],
+  ["são paulo", "M"], ["rio de janeiro", "M"], ["buenos aires", "S"], ["santiago", "M"],
+  ["lima", "M"], ["bogotá", "TM"], ["medellín", "M"], ["caracas", "M"],
+  ["panama city", "M"], ["santo domingo", "M"], ["san juan", "TU"], ["cape town", "T"],
+  ["johannesburg", "G"], ["lagos", "LRMT"], ["nairobi", "NCR"], ["casablanca", "T"],
+  ["algiers", "M"], ["tunis", "M"], ["addis ababa", "LRT"],
+]);
+
+function cityTransitIcon(city) {
+  const key = String(city || "").toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const entry = Object.entries(CITY_TRANSIT).find(([name]) => key.includes(name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")))?.[1];
+  if (!entry) return null;
+  if (entry === "roundel") return `<circle r="5"/><path d="M-8 0H8" stroke-width="3"/>`;
+  return `<text text-anchor="middle" dominant-baseline="central" font-family="JetBrains Mono,monospace" font-size="${entry.length > 2 ? 4 : 7}" font-weight="700" fill="currentColor" stroke="none">${entry}</text>`;
+}
+
+function detailIcon(kind, mode, city) {
   if (mode === "metro" || kind === "subway_entrance") return DETAIL_ICONS.metro;
-  if (mode === "train") return DETAIL_ICONS.train;
+  if (mode === "train") return cityTransitIcon(city) || DETAIL_ICONS.train;
   if (kind === "tram_stop") return DETAIL_ICONS.tram;
   if (kind === "station" || kind === "halt") return DETAIL_ICONS.train;
   if (kind === "museum") return DETAIL_ICONS.museum;
@@ -120,12 +201,16 @@ export function renderSvg(opts) {
 
   const showLandmarks = mapDetails === "landmarks" || mapDetails === "all";
   const showTransit = mapDetails === "transit" || mapDetails === "all";
-  const marker = ({ p: [x, y], n, k, m }) =>
+  const marker = ({ p: [x, y], n, k, m }) => {
+    const worship = k.startsWith("worship:");
+    return (
     `<g transform="translate(${x / PRECISION} ${y / PRECISION})">` +
-    `<circle r="10" fill="${preset.paper}" stroke="${preset.ink}" stroke-width="2"/>` +
+    (worship ? "" : `<circle r="10" fill="${preset.paper}" stroke="${preset.ink}" stroke-width="2"/>`) +
     `<g color="${preset.ink}" fill="none" stroke="currentColor" stroke-width="1.5" ` +
-    `stroke-linecap="round" stroke-linejoin="round">${detailIcon(k, m)}</g>` +
-    `<title>${escape(n)}</title></g>`;
+    `stroke-linecap="round" stroke-linejoin="round">${detailIcon(k, m, place.city)}</g>` +
+    `<title>${escape(n)}</title></g>`
+    );
+  };
 
   if (showLandmarks && features.landmarks?.length) {
     groups.push(`<g aria-label="Landmarks">${features.landmarks.map(marker).join("")}</g>`);
@@ -134,18 +219,20 @@ export function renderSvg(opts) {
     groups.push(`<g aria-label="Metro and rail stations">${features.transit.map(marker).join("")}</g>`);
   }
 
+  const frame = frameOf(shape);
   const credit = attribution
-    ? `<text x="${SIZE / 2}" y="${SIZE - 24}" text-anchor="middle" ` +
+    ? `<text x="${SIZE / 2}" y="${frame.y + frame.h - 24}" text-anchor="middle" ` +
       `font-family="JetBrains Mono, monospace" font-size="16" fill="${preset.ink}">` +
       `© OpenStreetMap contributors</text>`
     : "";
 
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SIZE} ${SIZE}" ` +
+    `<svg xmlns="http://www.w3.org/2000/svg" ` +
+    `viewBox="${frame.x} ${frame.y} ${frame.w} ${frame.h}" ` +
     `role="img" aria-label="Map of ${escape(place.label)}">` +
     `<defs><clipPath id="crop">${clipShape(shape)}</clipPath></defs>` +
     `<g clip-path="url(#crop)">` +
-    `<rect width="${SIZE}" height="${SIZE}" fill="${preset.paper}" />` +
+    `<rect x="${frame.x}" y="${frame.y}" width="${frame.w}" height="${frame.h}" fill="${preset.paper}" />` +
     groups.join("") +
     credit +
     `</g></svg>`
@@ -154,11 +241,13 @@ export function renderSvg(opts) {
 
 /** Placeholder artwork shown before the first generation. */
 export function renderPlaceholder({ preset, shape }) {
+  const frame = frameOf(shape);
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${SIZE} ${SIZE}" aria-hidden="true">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" ` +
+    `viewBox="${frame.x} ${frame.y} ${frame.w} ${frame.h}" aria-hidden="true">` +
     `<defs><clipPath id="crop">${clipShape(shape)}</clipPath></defs>` +
     `<g clip-path="url(#crop)">` +
-    `<rect width="${SIZE}" height="${SIZE}" fill="${preset.paper}" />` +
+    `<rect x="${frame.x}" y="${frame.y}" width="${frame.w}" height="${frame.h}" fill="${preset.paper}" />` +
     `</g></svg>`
   );
 }

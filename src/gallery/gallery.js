@@ -4,6 +4,7 @@
 import "../shared/tokens.css";
 import "./gallery.css";
 import { mountNav } from "../shared/nav.js";
+import { PRESETS } from "../presets.js";
 
 import gridLineH from "../assets/gallery/grid-line-h.png";
 import gridLineV from "../assets/gallery/grid-line-v.png";
@@ -44,10 +45,11 @@ const CITIES = [
 ];
 
 // The mock reads "Total Views 08 / Styles 4 Categories". There is no view
-// counter, and the generator ships six presets — these are the real numbers.
+// counter, and the preset count is read from the generator's own palette list
+// so it cannot drift when palettes are added.
 const STATS = [
   { label: "Exhibits", value: String(CITIES.length).padStart(2, "0"), accent: true },
-  { label: "Styles", value: "6 Presets" },
+  { label: "Styles", value: `${PRESETS.length} Presets` },
   { label: "Projection", value: "Conformal" },
 ];
 

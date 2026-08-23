@@ -55,13 +55,67 @@ export const PRESETS = [
     paper: "#DDE9F0",
     ink: "#CBDBE4",
   },
+  {
+    id: "blueprint",
+    name: "Blueprint",
+    colors: { water: "#1B3E63", greenery: "#20486B", buildings: "#2E5C8A", roads: "#A8C8E8" },
+    paper: "#0C2038",
+    ink: "#1D4470",
+  },
+  {
+    id: "terracotta",
+    name: "Terracotta",
+    colors: { water: "#6E9AA8", greenery: "#8C9A6B", buildings: "#C1603F", roads: "#F3E4CE" },
+    paper: "#E7D6BC",
+    ink: "#C3A583",
+  },
+  {
+    id: "sepia",
+    name: "Sepia",
+    colors: { water: "#BFAE8E", greenery: "#B4BE99", buildings: "#A9855F", roads: "#F5EAD3" },
+    paper: "#E6D6B6",
+    ink: "#BFA57C",
+  },
+  {
+    id: "neon",
+    name: "Neon",
+    colors: { water: "#1B2A4A", greenery: "#0E4034", buildings: "#F72585", roads: "#4CC9F0" },
+    paper: "#080A18",
+    ink: "#231B45",
+  },
+  {
+    id: "sakura",
+    name: "Sakura",
+    colors: { water: "#BFD7E6", greenery: "#BFD3AC", buildings: "#E8A2B4", roads: "#FBEFF1" },
+    paper: "#F3DFE3",
+    ink: "#DDBCC4",
+  },
+  {
+    id: "nori",
+    name: "Nori",
+    colors: { water: "#12302E", greenery: "#1D4A3E", buildings: "#3E6B5A", roads: "#8FBFA6" },
+    paper: "#0B1F1E",
+    ink: "#1A3B36",
+  },
 ];
 
+/**
+ * Crop shapes. `w`/`h` are the frame cut out of the 1000×1000 projection, so a
+ * rectangle is a genuine crop of the same map rather than a squashed one — the
+ * canvas, the SVG viewBox and the PNG export all follow this ratio.
+ */
 export const SHAPES = [
-  { id: "circle", name: "circle" },
-  { id: "square", name: "square" },
-  { id: "hexagon", name: "hexagon" },
+  { id: "circle", name: "circle", w: 1000, h: 1000 },
+  { id: "square", name: "square", w: 1000, h: 1000 },
+  { id: "hexagon", name: "hexagon", w: 1000, h: 1000 },
+  { id: "portrait", name: "portrait", w: 667, h: 1000 },
+  { id: "landscape", name: "landscape", w: 1000, h: 667 },
+  { id: "panorama", name: "pano", w: 1000, h: 500 },
+  { id: "diamond", name: "diamond", w: 1000, h: 1000 },
+  { id: "arch", name: "arch", w: 700, h: 1000 },
 ];
+
+export const shapeById = (id) => SHAPES.find((shape) => shape.id === id) ?? SHAPES[0];
 
 // Short editorial note shown next to the topbar meta tag (Figma node 4:18).
 // Keys are lowercase substrings matched against the resolved place label (the

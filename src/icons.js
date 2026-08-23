@@ -9,10 +9,18 @@ import generate from "./assets/icons/generate.svg?raw";
 import circle from "./assets/icons/shape-circle.svg?raw";
 import square from "./assets/icons/shape-square.svg?raw";
 import hexagon from "./assets/icons/shape-hexagon.svg?raw";
+import portrait from "./assets/icons/shape-portrait.svg?raw";
+import landscape from "./assets/icons/shape-landscape.svg?raw";
+import panorama from "./assets/icons/shape-panorama.svg?raw";
+import diamond from "./assets/icons/shape-diamond.svg?raw";
+import arch from "./assets/icons/shape-arch.svg?raw";
 
 const FIGMA_COLORS = /#(636B78|4ECDC4|0B0C0E)/gi;
 
-const raw = { pin, dot, download, chevron, generate, circle, square, hexagon };
+const raw = {
+  pin, dot, download, chevron, generate,
+  circle, square, hexagon, portrait, landscape, panorama, diamond, arch,
+};
 
 export const icons = Object.fromEntries(
   Object.entries(raw).map(([name, svg]) => [name, svg.replace(FIGMA_COLORS, "currentColor")])

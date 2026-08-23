@@ -22,7 +22,7 @@ export async function geocode(query) {
   if (!key) throw new Error("Enter a location");
   if (geocodeCache.has(key)) return geocodeCache.get(key);
 
-  const place = await post("/api/geocode", { query });
+  const place = await post("/api/geocode?v=2", { query });
   geocodeCache.set(key, place);
   return place;
 }
