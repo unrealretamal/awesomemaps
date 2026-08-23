@@ -1,0 +1,262 @@
+// Markup builders for the homepage sections (Figma node 5:314).
+// Each function returns an HTML string; home.js concatenates them.
+import { FEATURED, GALLERY, STEPS, STATS, STYLES } from "./data.js";
+
+import radarRing from "../assets/home/radar-ring.png";
+import radarRingInner from "../assets/home/radar-ring-inner.svg";
+import mapHeroCircle from "../assets/home/map-hero-circle.webp";
+import compassOuter from "../assets/home/compass-outer.png";
+import compassInner from "../assets/home/compass-inner.svg";
+import arrowRight from "../assets/home/arrow-right.svg";
+import githubMark from "../assets/home/github.svg";
+import socialGithub from "../assets/home/social-github.svg";
+import socialTwitter from "../assets/home/social-twitter.svg";
+import socialMessage from "../assets/home/social-message-square.svg";
+
+const REPO_URL = "https://github.com/marceloprates/prettymaps";
+
+const grid = (modifier = "") =>
+  `<div class="tech-grid${modifier}" aria-hidden="true"></div>`;
+
+/* ── hero (5:326) ───────────────────────────────────────────────────── */
+export function hero() {
+  return `
+  <section class="hero">
+    <div class="hero__left">
+      <p class="badge"><span class="badge__dot"></span>v2 · VECTOR MAP ENGINE</p>
+      <h1 class="hero__headline">Map the world, your way.</h1>
+      <p class="hero__subtitle">
+        Generate highly stylized vector map art from coordinate layers. Customize
+        style presets, select circular or geometric focal crop shapes, and export
+        museum-grade high-resolution cartography.
+      </p>
+      <div class="hero__ctas">
+        <a class="btn btn--fill" href="/generator">Open Generator</a>
+        <a class="btn btn--outline" href="/gallery">Browse Gallery</a>
+      </div>
+    </div>
+
+    <div class="hero__right">
+      ${grid()}
+      <div class="lens lens--hero">
+        <img class="lens__ring" src="${radarRing}" alt="" />
+        <img class="lens__ring-inner" src="${radarRingInner}" alt="" />
+        <img class="lens__map" src="${mapHeroCircle}" alt="Poster map of Bairro Alto, Lisbon" />
+      </div>
+      <p class="hud">
+        <span class="hud__dim">SYS_REF: MERCATOR</span>
+        <span class="hud__accent">LAT: 38.7223° N</span>
+      </p>
+    </div>
+  </section>`;
+}
+
+/* ── map card, shared by 5:365 and 5:584 ────────────────────────────── */
+function mapCard(item) {
+  const preview =
+    item.shape === "circle"
+      ? `<div class="lens lens--card">
+           <img class="lens__ring" src="${compassOuter}" alt="" />
+           <img class="lens__ring-inner" src="${compassInner}" alt="" />
+           <img class="lens__map" src="${item.img}" alt="Poster map of ${item.city}" loading="lazy" />
+         </div>`
+      : `<div class="map-rect">
+           <img src="${item.img}" alt="Poster map of ${item.city}" loading="lazy" />
+         </div>`;
+
+  return `
+  <article class="map-card">
+    <div class="map-card__viewport">
+      ${grid()}
+      ${preview}
+      <div class="ticks" aria-hidden="true">
+        <span class="ticks__nw">N ${item.lat}</span>
+        <span class="ticks__ne">W ${item.lon}</span>
+        <span class="ticks__se">E ${item.lon}</span>
+      </div>
+      <div class="scale" aria-hidden="true">
+        <span class="scale__label">${item.scale}</span>
+        <span class="scale__bar"></span>
+      </div>
+    </div>
+    <div class="map-card__meta">
+      <div class="map-card__head">
+        <div class="map-card__city">
+          <h3>${item.city}</h3>
+          <p>${item.country}</p>
+        </div>
+        <span class="tag">${item.tag}</span>
+      </div>
+      <hr class="rule" />
+      <div class="map-card__details">
+        <span class="map-card__coords">${item.lat}, ${item.lon}</span>
+        <span class="map-card__code">${item.code}</span>
+      </div>
+    </div>
+  </article>`;
+}
+
+/* ── featured-section (5:357) ───────────────────────────────────────── */
+export function featured() {
+  return `
+  <section class="section">
+    <header class="section__head">
+      <div class="section__titles">
+        <h2>Featured Maps</h2>
+        <p>Curated selections from the AwesomeMaps community</p>
+      </div>
+      <a class="link-arrow" href="/gallery">
+        View All <img src="${arrowRight}" alt="" width="14" height="14" />
+      </a>
+    </header>
+    <div class="card-grid card-grid--3">
+      ${FEATURED.map(mapCard).join("")}
+    </div>
+  </section>`;
+}
+
+/* ── how-it-works (5:471) ───────────────────────────────────────────── */
+export function howItWorks() {
+  const steps = STEPS.map(
+    (step) => `
+      <article class="step">
+        <span class="pill">${step.badge}</span>
+        <h3>${step.title}</h3>
+        <p>${step.body}</p>
+      </article>`
+  ).join("");
+
+  return `
+  <section class="section section--panel">
+    <header class="section__head section__head--center">
+      <div class="section__titles">
+        <h2>How It Works</h2>
+        <p>Create beautiful poster-grade mapping assets in three steps</p>
+      </div>
+    </header>
+    <div class="card-grid card-grid--3">${steps}</div>
+  </section>`;
+}
+
+/* ── stats-bar (5:491) ──────────────────────────────────────────────── */
+export function stats() {
+  const items = STATS.map(
+    (stat) => `
+    <div class="stats__item">
+      <span class="stats__value${stat.accent ? " stats__value--accent" : ""}">${stat.value}</span>
+      <span class="stats__label">${stat.label}</span>
+    </div>`
+  ).join(`<span class="stats__sep" aria-hidden="true"></span>`);
+
+  return `<section class="stats">${items}</section>`;
+}
+
+/* ── map-styles-showcase (5:507) ────────────────────────────────────── */
+export function mapStyles() {
+  const cards = STYLES.map(
+    (style) => `
+      <article class="style-card">
+        <div class="style-card__diagram">
+          ${grid(" tech-grid--center")}
+          <span class="shape shape--${style.diagram}" aria-hidden="true"></span>
+        </div>
+        <h3>${style.title}</h3>
+        <p>${style.body}</p>
+      </article>`
+  ).join("");
+
+  return `
+  <section class="section">
+    <header class="section__head">
+      <div class="section__titles">
+        <h2>Map Styles</h2>
+        <p>Choose from curated style foundations or forge your own signature</p>
+      </div>
+    </header>
+    <div class="card-grid card-grid--4">${cards}</div>
+  </section>`;
+}
+
+/* ── gallery-preview (5:577) ────────────────────────────────────────── */
+export function galleryPreview() {
+  return `
+  <section class="section">
+    <header class="section__head">
+      <div class="section__titles">
+        <h2>Explore the Gallery</h2>
+        <p>Archived map creations submitted by global digital cartographers</p>
+      </div>
+      <a class="btn btn--outline btn--sm" href="/gallery">See Full Collection →</a>
+    </header>
+    <div class="card-grid card-grid--2">
+      ${GALLERY.map(mapCard).join("")}
+    </div>
+  </section>`;
+}
+
+/* ── open-source-attribution (5:732) ────────────────────────────────── */
+export function about() {
+  return `
+  <section class="section section--about" id="about">
+    <div class="about">
+      <header class="about__head">
+        <span class="about__title">
+          <img src="${githubMark}" alt="" width="20" height="20" />
+          Open Data Infrastructure
+        </span>
+        <span class="about__ref">DRR // PRETTYMAPS</span>
+      </header>
+      <p class="about__body">
+        Every map here is drawn from OpenStreetMap — a free world map built and
+        corrected by real human editors. AwesomeMaps reads OSM geometry from
+        vector tiles, projects the ways and polygons into plain SVG, and hands
+        you back the layers. Under the hood it pays tribute to the beautiful
+        plotting logic of
+        <a href="${REPO_URL}" rel="noopener">prettymaps by marceloprates</a>.
+      </p>
+      <pre class="about__code"><code><span class="about__code-dim">$ POST /api/features { "lat": 38.7223, "lon": -9.1393, "radius": 1000 }</span>
+<span class="about__code-accent">&gt; OSM ways projected to SVG layers (Mercator projection, WGS 84)</span></code></pre>
+    </div>
+  </section>`;
+}
+
+/* ── footer (5:743) ─────────────────────────────────────────────────── */
+export function footer() {
+  return `
+  <footer class="footer">
+    <div class="footer__top">
+      <div class="footer__brand">
+        <span class="footer__logo"><span class="footer__dot"></span>AwesomeMaps</span>
+        <p>Digital mapping project showcasing urban architectures and land geometries.</p>
+      </div>
+      <nav class="footer__cols" aria-label="Footer">
+        <div class="footer__col">
+          <h2>Platform</h2>
+          <a href="/generator">Generator</a>
+          <a href="/gallery">Gallery</a>
+          <a href="#about">About</a>
+        </div>
+        <div class="footer__col">
+          <h2>Resources</h2>
+          <a href="https://www.openstreetmap.org" rel="noopener">OpenStreetMap</a>
+          <a href="${REPO_URL}" rel="noopener">Prettymaps</a>
+          <a href="${REPO_URL}" rel="noopener">GitHub Repo</a>
+        </div>
+      </nav>
+    </div>
+    <hr class="rule" />
+    <div class="footer__bottom">
+      <div class="footer__legal">
+        <p>© 2026 AWESOMEMAPS BY DIEGO RAMOS RETAMAL. MAP DATA © OPENSTREETMAP CONTRIBUTORS.</p>
+        <p class="footer__fine">LATITUDE SCALE 90°N - 90°S // MERCATOR REF SYSTEM WGS 84</p>
+      </div>
+      <div class="footer__socials">
+        <a href="${REPO_URL}" rel="noopener" aria-label="GitHub">
+          <img src="${socialGithub}" alt="" width="18" height="18" />
+        </a>
+        <span aria-hidden="true"><img src="${socialTwitter}" alt="" width="18" height="18" /></span>
+        <span aria-hidden="true"><img src="${socialMessage}" alt="" width="18" height="18" /></span>
+      </div>
+    </div>
+  </footer>`;
+}
