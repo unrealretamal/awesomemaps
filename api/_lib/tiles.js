@@ -139,8 +139,11 @@ function decodeTile(entry, project, features, sizedBuildings, withBuildings) {
     });
   }
 
-  const water = tile.layers.water_polygons;
-  if (water) collect(water, mapperFor(water), true, (e) => features.water.push(e.ring));
+  // `water_polygons` covers rivers/lakes. Coast and open sea live separately
+  // in Shortbread's `ocean` layer and must be merged into same visual layer.
+  for (const water of [tile.layers.ocean, tile.layers.water_polygons]) {
+    if (water) collect(water, mapperFor(water), true, (e) => features.water.push(e.ring));
+  }
 
   const land = tile.layers.land;
   if (land) {
