@@ -9,6 +9,7 @@ import { countFeatures, fetchFeatures, geocode } from "./osm.js";
 import { frameOf, renderPlaceholder, renderSvg } from "./render.js";
 import { exportPng, exportSvg } from "./export.js";
 import { inject } from '@vercel/analytics';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
 const $ = (id) => document.getElementById(id);
 
@@ -330,6 +331,7 @@ function markStale() {
 
 function init() {
   inject();
+  injectSpeedInsights();
   mountNav("generator");
   mountIcons();
   $("brand-mark").src = brandMark;

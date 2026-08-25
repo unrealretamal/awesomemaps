@@ -6,6 +6,7 @@ import "./gallery.css";
 import { mountNav } from "../shared/nav.js";
 import { PRESETS } from "../presets.js";
 import { inject } from '@vercel/analytics';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
 import gridLineH from "../assets/gallery/grid-line-h.png";
 import gridLineV from "../assets/gallery/grid-line-v.png";
@@ -181,6 +182,7 @@ function pageMarkup() {
 
 mountNav("gallery");
 inject();
+injectSpeedInsights();
 
 const root = document.getElementById("gallery");
 if (root) root.innerHTML = pageMarkup();
