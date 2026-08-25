@@ -14,9 +14,11 @@ import {
   footer,
 } from "./sections.js";
 import { inject } from '@vercel/analytics';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
 mountNav("home");
 inject();
+injectSpeedInsights();
 
 const host = document.getElementById("home");
 if (host) {
