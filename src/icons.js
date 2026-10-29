@@ -1,6 +1,5 @@
-// Icons exported from Figma (node 1:2) and committed under src/assets/icons.
-// They ship with hardcoded Figma colors; we swap those for `currentColor`
-// so the same asset can render in the muted and the accent state.
+// Generator icons from Figma (node 1:2). Hardcoded Figma colors become
+// currentColor so muted and accent states share one asset.
 import pin from "./assets/icons/pin.svg?raw";
 import dot from "./assets/icons/dot.svg?raw";
 import download from "./assets/icons/download.svg?raw";
@@ -18,16 +17,27 @@ import arch from "./assets/icons/shape-arch.svg?raw";
 const FIGMA_COLORS = /#(636B78|4ECDC4|0B0C0E)/gi;
 
 const raw = {
-  pin, dot, download, chevron, generate,
-  circle, square, hexagon, portrait, landscape, panorama, diamond, arch,
+  pin,
+  dot,
+  download,
+  chevron,
+  generate,
+  circle,
+  square,
+  hexagon,
+  portrait,
+  landscape,
+  panorama,
+  diamond,
+  arch,
 };
 
 export const icons = Object.fromEntries(
   Object.entries(raw).map(([name, svg]) => [name, svg.replace(FIGMA_COLORS, "currentColor")])
 );
 
-// The brand mark is a raster logo exported from Figma (node 1:8), not a
-// monochrome glyph, so it ships as an image rather than an inline SVG.
+// Brand mark source is brand-mark.svg (paper / ink / terracotta). The PNG
+// shipped here and in public/icons/ is rasterised from that SVG.
 export { default as brandMark } from "./assets/icons/brand-mark.png";
 
 /** Fill every `<i class="icon" data-icon="…">` inside `root`. */

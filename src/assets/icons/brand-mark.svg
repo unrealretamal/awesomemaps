@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AwesomeMaps">
+  <rect width="64" height="64" rx="12" fill="#f5f1e8"/>
+  <g transform="translate(32 32)">
+    <circle r="24.5" fill="#efebe3" stroke="#17251f" stroke-width="1.5"/>
+    <clipPath id="am-crop">
+      <circle r="23.75"/>
+    </clipPath>
+    <g clip-path="url(#am-crop)">
+      <path fill="#b7c2bb" d="M-24-24 V24 H-6 C-10 8 -12 -4 -8 -16 C-6 -22 -14 -24 -24 -24 Z"/>
+      <path fill="#e7e0d0" d="M-6-24 C-2 -16 0 -4 -2 10 C-4 20 2 24 24 24 V-24 Z"/>
+      <rect x="-2" y="-14" width="7" height="6" fill="#cfc6b0"/>
+      <rect x="8" y="-16" width="9" height="8" fill="#c8bfa8"/>
+      <rect x="4" y="-4" width="8" height="7" fill="#cfc6b0"/>
+      <rect x="14" y="-2" width="7" height="9" fill="#c8bfa8"/>
+      <rect x="2" y="8" width="10" height="7" fill="#cfc6b0"/>
+      <rect x="14" y="10" width="8" height="8" fill="#c8bfa8"/>
+      <g fill="none" stroke="#17251f" stroke-width="1.05" stroke-linecap="square">
+        <path d="M-4-24 V24"/>
+        <path d="M6-24 V24"/>
+        <path d="M16-24 V24"/>
+        <path d="M-6-10 H24"/>
+        <path d="M-4 4 H24"/>
+        <path d="M-2 16 H24"/>
+      </g>
+      <path d="M-10 0 H24" fill="none" stroke="#c55a2d" stroke-width="2.2" stroke-linecap="butt"/>
+    </g>
+  </g>
+</svg>

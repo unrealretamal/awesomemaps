@@ -101,101 +101,76 @@ components:
 
 ## Overview
 
-AwesomeMaps is a side product by Diego Ramos Retamal. It sits in the same family as the portfolio at [retamal.xyz](https://retamal.xyz): paper, ink, one terracotta signal, huge display type, numbered process only when the sequence is real.
-
-It is not a cartography HUD. The Figma night-shift chrome (teal on near-black, compass lenses, `SYS_REF` ticks) belongs only to the **generator**, which is an instrument. Home and gallery are the product pages — they should read as something Diego ships, the way “Built outside the brief” does on the portfolio.
-
-The plotting idea started as a Streamlit studio forked from [prettymaps](https://github.com/marceloprates/prettymaps) at [unrealretamal/prettymaps-studio](https://github.com/unrealretamal/prettymaps-studio). This site is the independent JavaScript product: OpenStreetMap geometry in, SVG poster out.
+AwesomeMaps is a side product by Diego Ramos Retamal, in the same family as [retamal.xyz](https://retamal.xyz): paper, ink, one terracotta signal, large display type, numbered process only when the sequence is real.
 
 Two surfaces, one authorship:
 
-- **Home and gallery** — Inter on cream paper. Status strip (date, Berlin, time). Display headlines. Honest copy. Posters as posters, not radar overlays.
-- **Generator** — dense three-column tool. JetBrains Mono, near-black, teal. No marketing display type in the sidebars.
+- **Home and gallery** — product pages. Cream paper, Inter, status strip, posters as posters.
+- **Generator** — the instrument. Near-black, JetBrains Mono, teal. No marketing display type in the sidebars.
 
-Do not clone the portfolio vault, recruiter strip, or testimonials. Carry the *family*: status, scale, numbering, judgment — applied to maps.
+The plotting idea started as a Streamlit studio forked from [prettymaps](https://github.com/marceloprates/prettymaps) at [unrealretamal/prettymaps-studio](https://github.com/unrealretamal/prettymaps-studio). This site is the independent JavaScript product: OpenStreetMap geometry in, SVG poster out.
+
+Carry the portfolio *family* (status, scale, numbering, judgment). Do not clone the vault, recruiter strip, or testimonials.
+
+## Brand mark
+
+The mark is a miniature circular poster crop on paper — water, land, ink streets, one terracotta boulevard. Source: `src/assets/icons/brand-mark.svg`. Favicons in `public/icons/` are rasterised from that file.
+
+It uses the marketing tokens only. No rainbow frame, no folded-map clipart, no HUD teal. At 20px it should still read as “circular map crop.”
 
 ## Colors
 
-Marketing is print paper. One terracotta accent (`#c55a2d`), ink (`#17251f`) for type and primary buttons. Neutrals stay in the cream–olive range. Do not introduce teal on marketing pages; teal is the generator’s signal.
-
 | Token | Hex | Use |
 |---|---|---|
-| `bg-app` | `#f5f1e8` | Page, nav, marketing paper |
+| `bg-app` / `paper` | `#f5f1e8` | Marketing page |
 | `bg-panel` | `#fbf9f3` | Cards, footer |
 | `bg-well` | `#ece6da` | Poster wells |
 | `border` | `#d9d2c5` | Hairlines |
-| `text-1` | `#17251f` | Headlines, primary copy, buttons |
+| `text-1` / `ink` | `#17251f` | Type, primary buttons |
 | `text-2` | `#59645d` | Supporting copy |
-| `accent` | `#c55a2d` | Current nav, chips selected, hover |
+| `accent` | `#c55a2d` | Current nav, selected chips, hover |
 | `tool-bg` | `#0b0c0e` | Generator only |
 | `tool-accent` | `#4ecdc4` | Generator only |
 
-Poster palettes (Nori, Terracotta, Midnight, …) are artwork. They live inside the generated map and must not restyle chrome.
+Poster palettes (Nori, Terracotta, Midnight, …) are artwork inside the map. They do not restyle chrome. Teal stays off marketing pages.
 
 ## Typography
 
-Inter carries the product. JetBrains Mono is reserved for the generator and for coordinates that are actual data.
+Inter for marketing. JetBrains Mono for the generator and for coordinates that are real data.
 
-- **Display** (home H1, gallery H1): Inter 700, `clamp(2.75rem, 8vw, 5.5rem)`, line-height ~0.92, tracking around `-0.06em`. Headings carry their own weight — no kicker above them.
-- **Headline** (section titles): Inter 700, ~28px.
+- **Display** (home / gallery H1): Inter 700, `clamp(2.75rem, 8vw, 5.5rem)`, line-height ~0.92, tracking ~`-0.06em`. No kicker above.
+- **Headline**: Inter 700, ~28px.
 - **Body**: Inter 400, 17px / 1.55, measure 60–70ch.
-- **Process numbers**: Inter 600, the `01` / `02` / `03` themselves, same size as the step title.
-
-Sequence numbers are allowed only on the how-it-works steps, where order is the information.
+- **Process numbers**: Inter 600 — only on how-it-works steps, where order is the information.
 
 ## Layout
 
-Desktop gutter 80px, 24px below 900px. Marketing nav is sticky and includes a status strip (date · Berlin · time · “Side product”). Sections pad ~96px vertically on desktop.
+Desktop gutter 80px (24px below 900px). Marketing nav is sticky with a status strip: date · Berlin · time · “Side product”. Section padding ~80–96px vertical.
 
-Home is a reading column that opens into poster grids. Gallery is a title, filters, then a responsive poster grid. Generator is a locked viewport: 256px left, canvas, 224px right.
+Home: reading column that opens into poster grids. Gallery: title, filters, poster grid. Generator: locked three-column viewport (256px / canvas / 224px).
 
-## Elevation & Depth
+## Elevation & shapes
 
-Flat. Depth comes from paper on a slightly warmer well, 1px `border`, not drop shadows. Poster cards do not float. Hover is a border shift to terracotta, 150ms.
+Flat. Depth from paper on a warmer well and 1px borders — not shadows. Poster hover: border to terracotta, 150ms.
 
-No technical grid over marketing viewports. No compass rings. A circular crop is a round image; a square crop is a rectangle.
+Marketing radius 8px; poster images 12px (or 50% for circular crops). Primary buttons: ink fill, cream type; hover terracotta.
 
-## Shapes
-
-Marketing controls and cards: 8px radius. Poster images: 12px, or 50% for circular crops. Primary buttons: ink fill, 8px, cream type. Hover goes terracotta.
+No technical grids, compass rings, or coordinate ticks on marketing viewports. A circular crop is a round image.
 
 ## Components
 
-### Status strip
+**Status strip** — date, Berlin, local time (`Europe/Berlin`), “Side product”. Orientation, not decoration.
 
-Date, Berlin, local time (`Europe/Berlin`), and “Side product”. Same job as the portfolio’s “OPEN TO NEW PROJECTS” row — orientation, not decoration.
+**Buttons** — primary: ink / Inter 600. Outline: 1px ink. Generator buttons stay on tool tokens.
 
-### Buttons
+**Chips** — sentence case. Unselected: ink hairline. Selected (`aria-pressed="true"`): terracotta fill, cream type.
 
-Primary is filled ink, Inter 600. Hover terracotta. Outline is 1px ink. Generator buttons stay on the tool palette.
+**Cards** — poster, then city, country, palette · crop. Whole card deep-links into the generator with city, preset, crop, and coordinates.
 
-### Chips / filters
+**Navigation** — brand mark + “AwesomeMaps”. Links in `text-2`, current page terracotta. Generate CTA is the ink button. Generator focused variant: “Back to home” only.
 
-Sentence case, not uppercase HUD labels. Unselected: ink hairline on paper. Selected (`aria-pressed="true"`): terracotta fill, cream type.
+## Do / don't
 
-### Cards
+**Do** present AwesomeMaps as Diego’s product (link `https://retamal.xyz`). Keep gallery copy honest — these posters are generated here. Credit OSM, the Python studio fork, and prettymaps as inspiration (no prettymaps code is reused).
 
-Poster first, then city, country, palette. The whole card is the hit target into the generator (city, preset, crop, coordinates). Catalogue IDs and raw ticks stay off the marketing card unless they help a person choose.
-
-### Navigation
-
-Sticky. Brand mark + “AwesomeMaps”. Links in `text-2`, current page in terracotta. Generate CTA is the ink button. Generator uses the focused variant: “Back to home” only, on the tool tokens.
-
-## Do's and Don'ts
-
-### Do
-
-- **Do** present AwesomeMaps as Diego’s product, with a link to `https://retamal.xyz`.
-- **Do** keep marketing copy honest: the gallery is generated here, not submitted by a community.
-- **Do** deep-link a gallery card with city, preset, crop, and coordinates.
-- **Do** credit OpenStreetMap, the Python studio fork, and prettymaps as inspiration — this JavaScript app does not reuse prettymaps code.
-- **Do** keep the generator as an instrument. Marketing and tool can disagree in chrome; they must agree in authorship.
-
-### Don't
-
-- **Don't** put a kicker or eyebrow above a heading.
-- **Don't** dress marketing in HUD teal, compass lenses, coordinate ticks, or `SYS_REF` chrome.
-- **Don't** invent view counts, npm packages, or WebGL compilers the product does not have.
-- **Don't** restyle chrome with a poster palette.
-- **Don't** clone portfolio-v2 vault, recruiter, or testimonial patterns.
-- **Don't** ship Twitter or chat icons that are not links.
+**Don't** put kickers above headings. Don't dress marketing in HUD teal or compass chrome. Don't invent view counts, npm packages, or WebGL compilers. Don't restyle chrome with a poster palette. Don't ship social icons that are not links.

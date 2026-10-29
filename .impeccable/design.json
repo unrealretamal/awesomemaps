@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-29T15:00:00.000Z",
+  "generatedAt": "2026-10-29T16:20:00.000Z",
   "title": "Design System: AwesomeMaps",
   "extensions": {
     "colorMeta": {
@@ -43,6 +43,6 @@
       { "name": "md", "value": "900px" },
       { "name": "lg", "value": "1100px" }
     ],
-    "northStar": "Editorial side product in the retamal.xyz family. Cream paper, ink, terracotta. Generator stays a HUD tool."
+    "northStar": "Editorial side product in the retamal.xyz family. Cream paper, ink, terracotta. Brand mark is a circular poster crop. Generator stays a HUD tool."
   }
 }

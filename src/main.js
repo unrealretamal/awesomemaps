@@ -2,23 +2,25 @@ import "./style.css";
 import { brandMark, mountIcons } from "./icons.js";
 import { mountNav } from "./shared/nav.js";
 import { COLOR_KEYS, LAYERS, LOCATION_PRESETS, PRESETS, SHAPES } from "./presets.js";
-
-// The longest edge of a PNG export; the short edge follows the crop ratio.
-const EXPORT_LONG_EDGE = 4096;
 import { countFeatures, fetchFeatures, geocode } from "./osm.js";
 import { frameOf, renderPlaceholder, renderSvg } from "./render.js";
 import { exportPng, exportSvg } from "./export.js";
-import { inject } from '@vercel/analytics';
+import { inject } from "@vercel/analytics";
+
+// Longest PNG edge; the short edge follows the crop ratio.
+const EXPORT_LONG_EDGE = 4096;
 
 const $ = (id) => document.getElementById(id);
 
-// Gallery cards open as /generator?q=Berlin&preset=nori&shape=circle&lat=&lon=
+// Gallery deep links: /generator?q=Berlin&preset=nori&shape=circle&lat=&lon=
 const searchParams = new URLSearchParams(location.search);
 const requestedQuery = searchParams.get("q")?.trim();
 const requestedPreset = searchParams.get("preset")?.trim();
 const requestedShape = searchParams.get("shape")?.trim();
-const requestedLat = Number(searchParams.get("lat"));
-const requestedLon = Number(searchParams.get("lon"));
+const latParam = searchParams.get("lat");
+const lonParam = searchParams.get("lon");
+const requestedLat = latParam == null || latParam === "" ? NaN : Number(latParam);
+const requestedLon = lonParam == null || lonParam === "" ? NaN : Number(lonParam);
 const startPreset = PRESETS.find((preset) => preset.id === requestedPreset) ?? PRESETS[0];
 const startShape = SHAPES.some((shape) => shape.id === requestedShape) ? requestedShape : "circle";
 let pinnedCoords =
