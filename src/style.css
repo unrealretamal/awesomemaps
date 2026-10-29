@@ -824,7 +824,6 @@ body {
   height: 72px;
 }
 
-/* Dashed ring, echoing the compass rings on the gallery cards. */
 .spinner__ring {
   position: absolute;
   inset: 0;

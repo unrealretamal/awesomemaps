@@ -45,6 +45,7 @@ npm run preview
 index.html            home (editorial product page)
 gallery.html          gallery of adapted posters
 generator.html        three-column generator
+DESIGN.md             visual system (paper / ink / terracotta + tool HUD)
 src/main.js           generator state + event wiring
 src/presets.js        palettes, layers, crop shapes, sample locations
 src/catalog.js        unified catalogue for home + gallery
@@ -55,6 +56,8 @@ src/style.css         generator styles (HUD tokens)
 src/shared/           nav, tokens, site URLs — used by all three pages
 src/home/             landing page
 src/gallery/          gallery page
+src/assets/icons/brand-mark.svg   brand mark source
+public/icons/         favicon + apple-touch derived from the mark
 api/geocode.js        Nominatim proxy
 api/features.js       map geometry endpoint
 api/_lib/tiles.js     tile maths, fetching, decoding, Shortbread classification

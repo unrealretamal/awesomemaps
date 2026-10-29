@@ -46,14 +46,3 @@ export function generatorHref(entry) {
   });
   return `/generator?${params}`;
 }
-
-export function formatCoordinates({ lat, lon }) {
-  return `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? "N" : "S"}, ${Math.abs(lon).toFixed(4)}° ${
-    lon >= 0 ? "E" : "W"
-  }`;
-}
-
-export function axisLabel(value, positive, negative) {
-  const hemi = value >= 0 ? positive : negative;
-  return `${hemi} ${Math.abs(value).toFixed(4)}°`;
-}

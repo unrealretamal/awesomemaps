@@ -147,26 +147,17 @@ scripts/
 
 ## Design source
 
-Visual system is recorded in `DESIGN.md`. Home and gallery follow the
-portfolio-v2 product family (paper, ink, terracotta, status strip, display
-type) so AwesomeMaps reads as Diego's side product. The generator keeps the
-instrument HUD from Figma file `CZVlaXUf4Ee68o6w68VksJ` node `1:2`.
+Visual system: `DESIGN.md`. Home and gallery share the portfolio family
+(paper, ink, terracotta, status strip, display type). The generator keeps the
+instrument HUD from Figma `CZVlaXUf4Ee68o6w68VksJ` node `1:2`.
 
-Where the original mock and reality disagreed, reality won:
+The brand mark (`src/assets/icons/brand-mark.svg`) is a circular poster crop in
+the marketing tokens — source of truth for favicons in `public/icons/`.
 
-- The mock claimed an npm package (`@cartographia/core-maps`) and a "WebGL
-  coordinate compiler". Neither exists; the copy now describes plain SVG and the
-  real endpoint.
-- The gallery's stat panel counted "Total Views", which nothing measures.
-- Figma called the app "Wonderful Maps" in one frame and "AwesomeMaps" in
-  another. Unified on AwesomeMaps.
-- Marketing no longer clones the HUD (compass lenses, `SYS_REF` ticks, teal
-  night paper). Those belong in the generator.
-
-Card previews were originally Figma's placeholder art — cities the app had never
-drawn. `scripts/generate-previews.mjs` now renders them with the real engine, at
-a radius derived from each card's printed scale so "1 : 15,000" is true at the
-size it renders.
+Reality beat the original mock on a few points: no `@cartographia/core-maps`
+package, no WebGL compiler, no “Total Views,” one product name (AwesomeMaps),
+and no HUD chrome on marketing pages. Card previews come from
+`scripts/generate-previews.mjs` with the live engine, not Figma placeholders.
 
 ---
 

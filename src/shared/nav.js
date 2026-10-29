@@ -44,7 +44,7 @@ function statusMarkup() {
       <time datetime="${new Date().toISOString()}" data-status-date>${date}</time>
       <span>Berlin</span>
       <span data-status-time>${time}</span>
-      <span class="site-nav__status-flag">Side product by Diego Ramos Retamal</span>
+      <span class="site-nav__status-flag">Side product</span>
     </p>`;
 }
 
