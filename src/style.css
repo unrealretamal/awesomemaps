@@ -702,6 +702,11 @@ body {
   color: var(--text-4);
 }
 
+.credits a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
 /* ── Icons ───────────────────────────────────────────────────────── */
 .icon {
   display: inline-flex;

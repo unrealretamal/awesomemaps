@@ -1,186 +1,115 @@
-// Gallery page (Figma node 5:5, frame "map-gallery").
-// Every card is generated from the CITIES data array below — the design shows
-// eight hand-drawn copies of one card, we keep a single template.
 import "../shared/tokens.css";
 import "./gallery.css";
 import { mountNav } from "../shared/nav.js";
-import { PRESETS } from "../presets.js";
-import { inject } from '@vercel/analytics';
+import { CATALOG, generatorHref } from "../catalog.js";
+import { PORTFOLIO_URL, STUDIO_URL } from "../shared/site.js";
+import { inject } from "@vercel/analytics";
 
-import gridLineH from "../assets/gallery/grid-line-h.png";
-import gridLineV from "../assets/gallery/grid-line-v.png";
-import compassOuter from "../assets/gallery/compass-outer.png";
-import compassInner from "../assets/gallery/compass-inner.svg";
-import mapLisbon from "../assets/gallery/map-lisbon.webp";
-import mapBerlin from "../assets/gallery/map-berlin.webp";
-import mapMadrid from "../assets/gallery/map-madrid.webp";
-import mapTokyo from "../assets/gallery/map-tokyo.webp";
-import mapNewYork from "../assets/gallery/map-new-york.webp";
-import mapCairo from "../assets/gallery/map-cairo.webp";
-import mapSydney from "../assets/gallery/map-sydney.webp";
-import mapReykjavik from "../assets/gallery/map-reykjavik.webp";
-import mapRio from "../assets/gallery/map-rio-de-janeiro.webp";
-import mapParis from "../assets/gallery/map-paris.webp";
-
-/**
- * @typedef {object} City
- * @property {string} city
- * @property {string} country
- * @property {string} tag      accent pill copy
- * @property {number} lat      signed degrees, drives the corner ticks
- * @property {number} lon      signed degrees
- * @property {string} scale    scale-bar readout
- * @property {string} id       catalogue id shown bottom-right
- * @property {"circle"|"rect"} shape  preview treatment
- * @property {string} image    imported preview asset
- */
-
-/** @type {City[]} */
-const CITIES = [
-  { city: "Berlin", country: "Germany", tag: "Rail & Grid", lat: 52.52, lon: 13.405, scale: "1 : 16,000", id: "OSM-BER-16", shape: "circle", image: mapBerlin },
-  { city: "Madrid", country: "Spain", tag: "Warm Geometry", lat: 40.4168, lon: -3.7038, scale: "1 : 18,000", id: "OSM-MAD-18", shape: "rect", image: mapMadrid },
-  { city: "Tokyo", country: "Japan", tag: "High Density", lat: 35.6764, lon: 139.65, scale: "1 : 25,000", id: "OSM-TYO-25", shape: "rect", image: mapTokyo },
-  { city: "Lisbon", country: "Portugal", tag: "Urban Grid", lat: 38.7223, lon: -9.1393, scale: "1 : 15,000", id: "OSM-15", shape: "circle", image: mapLisbon },
-  { city: "New York", country: "United States", tag: "Topographic", lat: 40.7128, lon: -74.006, scale: "1 : 18,000", id: "OSM-15", shape: "circle", image: mapNewYork },
-  { city: "Cairo", country: "Egypt", tag: "River Coast", lat: 30.0444, lon: 31.2357, scale: "1 : 30,000", id: "OSM-15", shape: "rect", image: mapCairo },
-  { city: "Sydney", country: "Australia", tag: "Coastline", lat: -33.8688, lon: 151.2093, scale: "1 : 20,000", id: "OSM-15", shape: "rect", image: mapSydney },
-  { city: "Reykjavik", country: "Iceland", tag: "Glacier/Volcanic", lat: 64.1466, lon: -21.9426, scale: "1 : 12,000", id: "OSM-15", shape: "circle", image: mapReykjavik },
-  { city: "Rio de Janeiro", country: "Brazil", tag: "Mountain Grid", lat: -22.9068, lon: -43.1729, scale: "1 : 22,000", id: "OSM-15", shape: "rect", image: mapRio },
-  { city: "Paris", country: "France", tag: "Radial Grid", lat: 48.8566, lon: 2.3522, scale: "1 : 16,000", id: "OSM-15", shape: "circle", image: mapParis },
-];
-
-// The mock reads "Total Views 08 / Styles 4 Categories". There is no view
-// counter, and the preset count is read from the generator's own palette list
-// so it cannot drift when palettes are added.
-const STATS = [
-  { label: "Exhibits", value: String(CITIES.length).padStart(2, "0"), accent: true },
-  { label: "Styles", value: `${PRESETS.length} Presets` },
-  { label: "Projection", value: "Conformal" },
-];
+const PALETTE_FILTERS = [...new Set(CATALOG.map((entry) => entry.preset))];
+const SHAPE_FILTERS = [...new Set(CATALOG.map((entry) => entry.shape))];
 
 const escape = (value) =>
   String(value).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-/** Degrees-and-minutes label, e.g. `N 38° 43'`. */
-function dm(value, hemisphere, minutesOffset = 0) {
-  const total = Math.floor(Math.abs(value) * 60) + minutesOffset;
-  return `${hemisphere} ${Math.floor(total / 60)}° ${((total % 60) + 60) % 60}'`;
-}
-
-/** The four corner ticks: own hemisphere top/left, opposite one bottom/right. */
-function ticks({ lat, lon }) {
-  const [latHemi, latOpp] = lat >= 0 ? ["N", "S"] : ["S", "N"];
-  const [lonHemi, lonOpp] = lon >= 0 ? ["E", "W"] : ["W", "E"];
-  return [
-    ["nw", dm(lat, latHemi)],
-    ["ne", dm(lon, lonHemi)],
-    ["sw", dm(lat, latOpp, -2)],
-    ["se", dm(lon, lonOpp, -2)],
-  ];
-}
-
-/** Faint dashed measuring grid drawn over every preview. */
-function technicalGrid() {
-  const rows = [0, 33.333, 66.667, 100]
-    .map((top) => `<img class="gal-view__hline" src="${gridLineH}" alt="" style="top:${top}%" />`)
-    .join("");
-  const columns = [12.5, 37.5, 62.5, 87.5]
-    .map((left) => `<img class="gal-view__vline" src="${gridLineV}" alt="" style="left:${left}%" />`)
-    .join("");
-  return rows + columns;
-}
-
-function preview(entry) {
-  if (entry.shape === "rect") {
-    return `<img class="gal-rect" src="${entry.image}" alt="Map preview of ${escape(entry.city)}" loading="lazy" />`;
-  }
+function card(entry, isHero) {
+  const round = entry.preview === "circle" ? " gal-card__image--round" : "";
   return `
-    <div class="gal-lens">
-      <img class="gal-lens__outer" src="${compassOuter}" alt="" />
-      <img class="gal-lens__inner" src="${compassInner}" alt="" />
-      <img class="gal-lens__map" src="${entry.image}" alt="Map preview of ${escape(entry.city)}" loading="lazy" />
-    </div>`;
-}
-
-function coordinates({ lat, lon }) {
-  return `${Math.abs(lat).toFixed(4)}° ${lat >= 0 ? "N" : "S"}, ${Math.abs(lon).toFixed(4)}° ${lon >= 0 ? "E" : "W"}`;
-}
-
-function card(entry, index) {
-  return `
-    <a class="gal-card${index === 0 ? " gal-card--hero" : ""}" href="/generator?q=${encodeURIComponent(entry.city)}">
-      <div class="gal-view">
-        ${technicalGrid()}
-        ${preview(entry)}
-        ${ticks(entry)
-          .map(([corner, label]) => `<span class="gal-tick gal-tick--${corner}">${label}</span>`)
-          .join("")}
+    <a class="gal-card${isHero ? " gal-card--hero" : ""}" href="${generatorHref(entry)}">
+      <div class="gal-card__well">
+        <img class="gal-card__image${round}" src="${entry.image}" alt="Poster map of ${escape(entry.city)} in the ${escape(entry.presetName)} palette" loading="lazy" />
       </div>
-      <div class="gal-meta">
-        <div class="gal-meta__head">
-          <span class="gal-city">
-            <span class="gal-city__name">${escape(entry.city)}</span>
-            <span class="gal-city__country">${escape(entry.country)}</span>
-          </span>
-          <span class="gal-tag">${escape(entry.tag)}</span>
+      <div class="gal-card__meta">
+        <div>
+          <h2 class="gal-card__city">${escape(entry.city)}</h2>
+          <p class="gal-card__country">${escape(entry.country)}</p>
         </div>
-        <div class="gal-rule"></div>
-        <div class="gal-meta__details">
-          <span>${coordinates(entry)}</span>
-          <span class="gal-meta__id">${escape(entry.id)}</span>
-        </div>
+        <span class="gal-card__tag">${escape(entry.presetName)} · ${escape(entry.shape)}</span>
       </div>
     </a>`;
 }
 
-function pageMarkup() {
+function chip(name, value, current, group) {
+  const pressed = value === current;
+  return `<button class="gal-chip" type="button" data-filter="${group}" data-value="${escape(value)}" aria-pressed="${pressed}">${escape(name)}</button>`;
+}
+
+function filtersMarkup(preset, shape) {
+  const presetChips = [
+    chip("All palettes", "", preset, "preset"),
+    ...PALETTE_FILTERS.map((id) => {
+      const name = CATALOG.find((entry) => entry.preset === id)?.presetName ?? id;
+      return chip(name, id, preset, "preset");
+    }),
+  ].join("");
+  const shapeChips = [
+    chip("All crops", "", shape, "shape"),
+    ...SHAPE_FILTERS.map((id) => chip(id, id, shape, "shape")),
+  ].join("");
   return `
-    <section class="gal-head">
-      <div class="gal-rule"></div>
-      <div class="gal-head__coords">
-        <span>LATITUDE SCALE 90°N - 90°S</span>
-        <em>SYS_REF: MERCATOR / WGS 84</em>
-        <span>LONGITUDE SCALE 180°W - 180°E</span>
-      </div>
-    </section>
+    <div class="gal-filters" role="toolbar" aria-label="Filter adaptations">
+      <div class="gal-filters__row">${presetChips}</div>
+      <div class="gal-filters__row">${shapeChips}</div>
+    </div>`;
+}
 
+function filteredCatalog(preset, shape) {
+  return CATALOG.filter((entry) => {
+    if (preset && entry.preset !== preset) return false;
+    if (shape && entry.shape !== shape) return false;
+    return true;
+  });
+}
+
+function pageShell() {
+  return `
     <section class="gal-intro">
-      <div class="gal-intro__title">
-        <span class="gal-eyebrow">Cities as portraits</span>
-        <h1>THE CITY<br/>LOOKS BACK.</h1>
-        <p>Berlin, Madrid and Tokyo lead a growing atlas of human geometry. Every piece is generated from live OpenStreetMap data, then dressed like a print.</p>
-      </div>
-      <div class="gal-stats">
-        ${STATS.map(
-          ({ label, value, accent }) => `
-          <div class="gal-stat">
-            <span class="gal-stat__label">${label}</span>
-            <span class="gal-stat__value${accent ? " gal-stat__value--accent" : ""}">${value}</span>
-          </div>`
-        ).join('<div class="gal-stats__divider"></div>')}
-      </div>
+      <h1 class="gal-display">The city looks back.</h1>
+      <p>Ten adaptations of live OpenStreetMap geometry — each city paired with a palette and a crop, then drawn as a print.</p>
     </section>
 
-    <div class="gal-grid">${CITIES.map(card).join("")}</div>
+    <div id="gal-filters"></div>
+    <div class="gal-grid" id="gal-grid"></div>
 
     <footer class="gal-foot">
-      <div class="gal-rule"></div>
-      <div class="gal-foot__row">
-        <div class="gal-foot__disclaimer">
-          <span>AWESOMEMAPS — A MAP GENERATION PROJECT BY DIEGO RAMOS RETAMAL.</span>
-          <span>MAP DATA © OPENSTREETMAP CONTRIBUTORS.</span>
-          <a href="https://diegoramosretamal.info" rel="author">DIEGO'S PORTFOLIO.</a>
-        </div>
-        <div class="gal-foot__brand">
-          <span>VOL. 01 // 2026 COLLECTION</span>
-          <span class="gal-foot__mono">DRR</span>
-        </div>
-      </div>
+      <p>AwesomeMaps — a side product by Diego Ramos Retamal. Map data © OpenStreetMap contributors.</p>
+      <p>
+        <a href="${PORTFOLIO_URL}" rel="author">retamal.xyz</a>
+        ·
+        <a href="${STUDIO_URL}" rel="noopener">Python studio</a>
+      </p>
     </footer>`;
+}
+
+function renderGrid(preset, shape) {
+  const host = document.getElementById("gal-grid");
+  const filterHost = document.getElementById("gal-filters");
+  if (!host || !filterHost) return;
+  filterHost.innerHTML = filtersMarkup(preset, shape);
+  const matches = filteredCatalog(preset, shape);
+  if (matches.length === 0) {
+    host.innerHTML = `<p class="gal-empty">No adaptations match those filters. Clear a filter to see the full collection.</p>`;
+    return;
+  }
+  const unfiltered = !preset && !shape;
+  host.innerHTML = matches.map((entry, index) => card(entry, unfiltered && index === 0)).join("");
 }
 
 mountNav("gallery");
 inject();
 
 const root = document.getElementById("gallery");
-if (root) root.innerHTML = pageMarkup();
+if (root) {
+  root.innerHTML = pageShell();
+  let preset = "";
+  let shape = "";
+  renderGrid(preset, shape);
+  root.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-filter]");
+    if (!button) return;
+    const group = button.dataset.filter;
+    const value = button.dataset.value ?? "";
+    if (group === "preset") preset = value;
+    if (group === "shape") shape = value;
+    renderGrid(preset, shape);
+  });
+}

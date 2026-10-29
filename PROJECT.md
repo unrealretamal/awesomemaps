@@ -8,9 +8,12 @@ a 4096px PNG.
 - **Also at:** https://awesomemaps.vercel.app
 - **Repo:** https://github.com/unrealretamal/awesomemaps
 
-Inspired by [prettymaps](https://github.com/marceloprates/prettymaps) by Marcelo
-Prates. This is an independent JavaScript implementation — no prettymaps code is
-reused, so it is not bound by that project's AGPL terms.
+A side product by [Diego Ramos Retamal](https://retamal.xyz). The plotting idea
+started as a Streamlit studio forked from
+[prettymaps](https://github.com/marceloprates/prettymaps):
+[unrealretamal/prettymaps-studio](https://github.com/unrealretamal/prettymaps-studio).
+This repository is the independent JavaScript implementation — no prettymaps
+code is reused, so it is not bound by that project's AGPL terms.
 
 ---
 
@@ -20,7 +23,7 @@ reused, so it is not bound by that project's AGPL terms.
 |---|---|---|
 | `/` | `index.html` + `src/home/` | Landing page: hero, featured maps, how it works, styles, gallery preview, `#about` |
 | `/generator` | `generator.html` + `src/main.js` | The tool itself — three-column editor |
-| `/gallery` | `gallery.html` + `src/gallery/` | Eight city cards, each linking to `/generator?q=<city>` |
+| `/gallery` | `gallery.html` + `src/gallery/` | Ten adapted posters from `src/catalog.js`, each linking to `/generator?q=&preset=&shape=&lat=&lon=` |
 
 Clean URLs come from `vercel.json`; `vite.config.js` maps them in dev so both
 runtimes behave the same.
@@ -28,7 +31,8 @@ runtimes behave the same.
 ### Navigation
 
 One component, `src/shared/nav.js`, mounted by every page with the current page
-as its only argument — there is no second copy that can drift. Sticky, 76px.
+as its only argument — there is no second copy that can drift. Marketing pages
+add a Berlin status strip; the generator does not.
 
 The generator runs a **focused** variant: no brand, no links, a single
 left-aligned "Back to home" at a 48px gutter. Inside the tool the app's own
@@ -116,7 +120,8 @@ src/
   presets.js         palettes, crop shapes, layers, sample locations
   icons.js           inline icons
   style.css          generator styles
-  shared/            nav.js, nav.css, tokens.css — used by all three pages
+  shared/            nav, tokens, site URLs — used by all three pages
+  catalog.js         unified catalogue for home + gallery
   home/              home.js, sections.js, data.js, home.css
   gallery/           gallery.js, gallery.css
   assets/            icons/, home/, gallery/
@@ -142,27 +147,21 @@ scripts/
 
 ## Design source
 
-Built from Figma file `CZVlaXUf4Ee68o6w68VksJ`:
+Visual system is recorded in `DESIGN.md`. Home and gallery follow the
+portfolio-v2 product family (paper, ink, terracotta, status strip, display
+type) so AwesomeMaps reads as Diego's side product. The generator keeps the
+instrument HUD from Figma file `CZVlaXUf4Ee68o6w68VksJ` node `1:2`.
 
-| Node | Screen |
-|---|---|
-| `1:2` | Generator |
-| `5:5` | Gallery |
-| `5:314` | Homepage (`5:315` is the nav) |
-
-Where the mock and reality disagreed, reality won — and the deviation is
-documented in the commit that made it:
+Where the original mock and reality disagreed, reality won:
 
 - The mock claimed an npm package (`@cartographia/core-maps`) and a "WebGL
   coordinate compiler". Neither exists; the copy now describes plain SVG and the
   real endpoint.
 - The gallery's stat panel counted "Total Views", which nothing measures.
-- All eight gallery cards carried Lisbon's coordinate ticks — a duplicated-layer
-  artifact. Ticks are computed per city.
-- The brand is a plain teal dot in the nav design; the real brand mark is used
-  instead, on every page and as the favicon.
 - Figma called the app "Wonderful Maps" in one frame and "AwesomeMaps" in
   another. Unified on AwesomeMaps.
+- Marketing no longer clones the HUD (compass lenses, `SYS_REF` ticks, teal
+  night paper). Those belong in the generator.
 
 Card previews were originally Figma's placeholder art — cities the app had never
 drawn. `scripts/generate-previews.mjs` now renders them with the real engine, at
@@ -218,8 +217,9 @@ Environment variables (production): `OPENAI_API_KEY`, optionally `OPENAI_MODEL`.
   need a paid geocoder under real load.
 - **The generator is desktop-first.** It collapses below 1100px and 720px, but
   the three-column editor is designed for a wide screen.
-- **Gallery card metadata is hand-written** (tags, scales). Only the geometry
-  and the ticks are derived.
+- **Gallery card metadata is hand-written** (tags, scales) in `src/catalog-data.js`.
+  Geometry and ticks are derived. Palettes and crops on each card match the
+  preview renderer.
 
 ## Attribution
 
