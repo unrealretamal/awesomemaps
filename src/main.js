@@ -12,18 +12,29 @@ import { inject } from '@vercel/analytics';
 
 const $ = (id) => document.getElementById(id);
 
-// The gallery links here as /generator?q=Lisbon, so a card opens the map it shows.
-const requestedQuery = new URLSearchParams(location.search).get("q")?.trim();
+// Gallery cards open as /generator?q=Berlin&preset=nori&shape=circle&lat=&lon=
+const searchParams = new URLSearchParams(location.search);
+const requestedQuery = searchParams.get("q")?.trim();
+const requestedPreset = searchParams.get("preset")?.trim();
+const requestedShape = searchParams.get("shape")?.trim();
+const requestedLat = Number(searchParams.get("lat"));
+const requestedLon = Number(searchParams.get("lon"));
+const startPreset = PRESETS.find((preset) => preset.id === requestedPreset) ?? PRESETS[0];
+const startShape = SHAPES.some((shape) => shape.id === requestedShape) ? requestedShape : "circle";
+let pinnedCoords =
+  Number.isFinite(requestedLat) && Number.isFinite(requestedLon)
+    ? { lat: requestedLat, lon: requestedLon }
+    : null;
 
 const noteCache = new Map();
 
 const state = {
   query: requestedQuery || "Bairro Alto, Lisbon",
   place: null,
-  preset: PRESETS[0],
-  colors: { ...PRESETS[0].colors },
+  preset: startPreset,
+  colors: { ...startPreset.colors },
   layers: Object.fromEntries(LAYERS.map((l) => [l.id, l.on])),
-  shape: "circle",
+  shape: startShape,
   radius: 1000,
   roadWidth: 2,
   mapDetails: "none",
@@ -287,7 +298,18 @@ async function generate() {
   setSpinner("Locating…");
 
   try {
-    state.place = await geocode(state.query);
+    if (pinnedCoords) {
+      state.place = {
+        lat: pinnedCoords.lat,
+        lon: pinnedCoords.lon,
+        label: state.query,
+        city: state.query,
+        search: state.query,
+      };
+      pinnedCoords = null;
+    } else {
+      state.place = await geocode(state.query);
+    }
     state.note = "";
     syncMeta();
     loadNote(state.place);

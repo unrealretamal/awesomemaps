@@ -1,16 +1,9 @@
-// Site navigation (Figma node 5:315). One implementation for every page:
-// call mountNav("home" | "generator" | "gallery" | "about").
-//
-// The generator is a full-screen tool: it drops both the brand and the link
-// list, leaving one left-aligned "Back to home" action. Every other page
-// carries the full nav with the "Generate Map" call to action.
-//
-// The design draws the brand as a plain teal dot; we use the real brand mark
-// instead so the logo reads the same on every page.
+// Site navigation. Marketing pages (home, gallery) carry the editorial bar
+// plus a status strip. The generator is a full-screen tool: brand and links
+// drop, leaving one "Back to home" action.
 import "./nav.css";
 import brandMark from "../assets/icons/brand-mark.png";
 import arrow from "../assets/icons/arrow-right.svg";
-// Inlined rather than used as an <img> so it inherits the link's colour.
 import homeIcon from "../assets/icons/home.svg?raw";
 
 const LINKS = [
@@ -20,14 +13,51 @@ const LINKS = [
   { id: "about", label: "About", href: "/#about" },
 ];
 
+const TZ = "Europe/Berlin";
+
 const brand = () => `
     <a class="site-nav__brand" href="/">
-      <img class="site-nav__mark" src="${brandMark}" alt="" width="20" height="20" />
+      <img class="site-nav__mark" src="${brandMark}" alt="AwesomeMaps" width="20" height="20" />
       <span class="site-nav__name">AwesomeMaps</span>
     </a>`;
 
+function formatStatus(now = new Date()) {
+  const date = new Intl.DateTimeFormat("en-US", {
+    timeZone: TZ,
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(now);
+  const time = new Intl.DateTimeFormat("en-GB", {
+    timeZone: TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(now);
+  return { date, time };
+}
+
+function statusMarkup() {
+  const { date, time } = formatStatus();
+  return `
+    <p class="site-nav__status">
+      <time datetime="${new Date().toISOString()}" data-status-date>${date}</time>
+      <span>Berlin</span>
+      <span data-status-time>${time}</span>
+      <span class="site-nav__status-flag">Side product by Diego Ramos Retamal</span>
+    </p>`;
+}
+
+function tickStatus(root) {
+  const dateEl = root.querySelector("[data-status-date]");
+  const timeEl = root.querySelector("[data-status-time]");
+  if (!dateEl || !timeEl) return;
+  const { date, time } = formatStatus();
+  dateEl.textContent = date;
+  timeEl.textContent = time;
+}
+
 export function navMarkup(current) {
-  // Focused mode: no brand, just the way out, sitting where the brand would be.
   if (current === "generator") {
     return `<a class="site-nav__cta site-nav__cta--back" href="/">
       <span class="site-nav__icon">${homeIcon}</span>
@@ -42,12 +72,15 @@ export function navMarkup(current) {
       }>${label}</a>`
   ).join("");
 
-  return `${brand()}
+  return `<div class="site-nav__row">
+    ${brand()}
     <nav class="site-nav__links" aria-label="Primary">${links}</nav>
     <a class="site-nav__cta" href="/generator">
-      Generate Map
+      Open generator
       <img class="site-nav__arrow" src="${arrow}" alt="" width="14" height="14" />
-    </a>`;
+    </a>
+  </div>
+  ${statusMarkup()}`;
 }
 
 /** @param {"home"|"generator"|"gallery"|"about"} current */
@@ -56,5 +89,10 @@ export function mountNav(current) {
   if (!host) return;
   host.classList.add("site-nav");
   host.classList.toggle("site-nav--focused", current === "generator");
+  host.classList.toggle("site-nav--marketing", current !== "generator");
   host.innerHTML = navMarkup(current);
+  if (current !== "generator") {
+    tickStatus(host);
+    window.setInterval(() => tickStatus(host), 30_000);
+  }
 }

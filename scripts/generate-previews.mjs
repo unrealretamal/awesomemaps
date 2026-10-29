@@ -13,6 +13,7 @@ import sharp from "sharp";
 import { fetchFeatures } from "../api/_lib/tiles.js";
 import { renderSvg } from "../src/render.js";
 import { PRESETS } from "../src/presets.js";
+import { CATALOG_META, HERO_PREVIEW, HOME_ALIASES } from "../src/catalog-data.js";
 
 const MM_PER_CSS_PX = 25.4 / 96;
 const OUTPUT_WIDTH = 900;
@@ -20,26 +21,8 @@ const OUTPUT_WIDTH = 900;
 /** Radius in metres that makes `1 : ratio` true at `cssPx` wide. */
 const radiusFor = (ratio, cssPx) => Math.round((ratio * cssPx * MM_PER_CSS_PX) / 1000 / 2);
 
-// Card render widths: circular lens 172px, rectangular inset 278px.
-const CIRCLE_PX = 172;
-const RECT_PX = 278;
-
-const CITIES = [
-  { slug: "berlin",         lat: 52.52,    lon: 13.405,    preset: "nori",     shape: "circle", ratio: 16000, px: CIRCLE_PX, roadWidth: 2 },
-  { slug: "madrid",         lat: 40.4168,  lon: -3.7038,   preset: "terracotta", shape: "square", ratio: 18000, px: RECT_PX, roadWidth: 2 },
-  { slug: "lisbon",         lat: 38.7223,  lon: -9.1393,   preset: "default",  shape: "circle", ratio: 15000, px: CIRCLE_PX, roadWidth: 2 },
-  { slug: "tokyo",          lat: 35.6764,  lon: 139.65,    preset: "midnight", shape: "square", ratio: 25000, px: RECT_PX,   roadWidth: 1.5 },
-  { slug: "new-york",       lat: 40.7128,  lon: -74.006,   preset: "mono",     shape: "circle", ratio: 18000, px: CIRCLE_PX, roadWidth: 2 },
-  { slug: "cairo",          lat: 30.0444,  lon: 31.2357,   preset: "autumn",   shape: "square", ratio: 30000, px: RECT_PX,   roadWidth: 1.5 },
-  { slug: "sydney",         lat: -33.8688, lon: 151.2093,  preset: "arctic",   shape: "square", ratio: 20000, px: RECT_PX,   roadWidth: 1.5 },
-  { slug: "reykjavik",      lat: 64.1466,  lon: -21.9426,  preset: "pastel",   shape: "circle", ratio: 12000, px: CIRCLE_PX, roadWidth: 2.5 },
-  { slug: "rio-de-janeiro", lat: -22.9068, lon: -43.1729,  preset: "arctic",   shape: "square", ratio: 22000, px: RECT_PX,   roadWidth: 1.5 },
-  { slug: "paris",          lat: 48.8566,  lon: 2.3522,    preset: "default",  shape: "circle", ratio: 16000, px: CIRCLE_PX, roadWidth: 2 },
-];
-
-// The homepage hero lens, and the home page's own file naming.
-const HERO = { slug: "hero-circle", lat: 52.52, lon: 13.405, preset: "nori", shape: "circle", ratio: 14000, px: 240, roadWidth: 2.5 };
-const HOME_ALIASES = { "new-york": "newyork" };
+const CITIES = CATALOG_META;
+const HERO = HERO_PREVIEW;
 
 const LAYERS = {
   buildings: true,

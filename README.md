@@ -1,11 +1,23 @@
-# awesomemaps
+# AwesomeMaps
 
-Poster-style map generator in the browser. Pick a neighbourhood, a palette and a
-crop shape; the app pulls OpenStreetMap geometry and draws an SVG you can export
-as SVG or a 4096 × 4096 PNG.
+Poster-style map generator in the browser. A side product by
+[Diego Ramos Retamal](https://retamal.xyz).
 
-Inspired by [prettymaps](https://github.com/marceloprates/prettymaps) by Marcelo
-Prates. This is an independent JavaScript implementation — no prettymaps code is
+Pick a neighbourhood, a palette and a crop shape; the app pulls OpenStreetMap
+geometry and draws an SVG you can export as SVG or a 4096 px PNG.
+
+- **Live:** https://awesomemaps.diegoramosretamal.info
+- **Also at:** https://awesomemaps.vercel.app
+- **Repo:** https://github.com/unrealretamal/awesomemaps
+
+## Lineage
+
+The plotting idea started as a Streamlit studio forked from
+[marceloprates/prettymaps](https://github.com/marceloprates/prettymaps):
+[unrealretamal/prettymaps-studio](https://github.com/unrealretamal/prettymaps-studio)
+(AGPL-3.0, Python). That editor is still the Python studio.
+
+This repository is the independent JavaScript product — no prettymaps code is
 reused, so it is not bound by that project's AGPL terms.
 
 ## Stack
@@ -30,14 +42,19 @@ npm run preview
 ## Structure
 
 ```
-index.html            markup for the three-column app shell
-src/main.js           state + event wiring
+index.html            home (editorial product page)
+gallery.html          gallery of adapted posters
+generator.html        three-column generator
+src/main.js           generator state + event wiring
 src/presets.js        palettes, layers, crop shapes, sample locations
+src/catalog.js        unified catalogue for home + gallery
 src/osm.js            client calls to /api, with in-memory caching
 src/render.js         SVG drawing from the delta-encoded payload
 src/export.js         SVG / PNG download
-src/style.css         design tokens and layout
-src/assets/icons/     icons exported from the Figma source file
+src/style.css         generator styles (HUD tokens)
+src/shared/           nav, tokens, site URLs — used by all three pages
+src/home/             landing page
+src/gallery/          gallery page
 api/geocode.js        Nominatim proxy
 api/features.js       map geometry endpoint
 api/_lib/tiles.js     tile maths, fetching, decoding, Shortbread classification

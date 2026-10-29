@@ -1,4 +1,4 @@
-/* Design tokens shared by every page (from Figma, nodes 1:2 / 5:5 / 5:314). */
+/* Design tokens shared by every page. See DESIGN.md. */
 :root {
   --bg-app: #0b0c0e;
   --bg-panel: #0d0f12;
@@ -10,21 +10,31 @@
   --text-3: #636b78;
   --text-4: #3a3f4a;
   --accent: #4ecdc4;
+  --accent-hover: #6fd8d0;
   --accent-soft: rgba(78, 205, 196, 0.05);
   --accent-line: rgba(78, 205, 196, 0.7);
   --radius: 4px;
+  --radius-lg: 6px;
   --page-gutter: 80px;
   /* Measured, not the 73px the Figma frame reports: 20px padding x2 + 35px
      content + 1px border. */
   --nav-height: 76px;
   --font: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-alt: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-alt: var(--font-body);
+  --ease: ease;
+  --duration: 150ms;
 }
 
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html {
+  scrollbar-color: var(--accent-line) var(--bg-well);
 }
 
 body {
@@ -36,14 +46,69 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+::selection {
+  background: var(--accent);
+  color: var(--bg-app);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 button,
 input {
   font: inherit;
   color: inherit;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 @media (max-width: 900px) {
   :root {
     --page-gutter: 24px;
   }
+}
+
+/* Marketing pages (home, gallery) inherit the product family from
+   retamal.xyz + the Streamlit studio: cream paper, ink, terracotta.
+   The generator keeps the :root HUD tokens above. */
+body.marketing {
+  --bg-app: #f5f1e8;
+  --bg-panel: #fbf9f3;
+  --bg-input: #efebe3;
+  --bg-well: #ece6da;
+  --border: #d9d2c5;
+  --text-1: #17251f;
+  --text-2: #59645d;
+  --text-3: #7a847c;
+  --text-4: #a39b8c;
+  --accent: #c55a2d;
+  --accent-hover: #a84822;
+  --accent-soft: rgba(197, 90, 45, 0.08);
+  --accent-line: rgba(197, 90, 45, 0.55);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --ink: #17251f;
+  --paper: #f5f1e8;
+  background: var(--bg-app);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+}
+
+body.marketing ::selection {
+  background: var(--accent);
+  color: var(--paper);
 }

@@ -3,5 +3,13 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "cleanUrls": true
+  "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "awesomemaps.vercel.app" }],
+      "destination": "https://awesomemaps.diegoramosretamal.info/$1",
+      "permanent": true
+    }
+  ]
 }
