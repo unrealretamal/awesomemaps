@@ -124,13 +124,14 @@ function bindSlider(id, format, onInput) {
 function buildColorRows() {
   $("color-rows").innerHTML = COLOR_KEYS.map((key) => {
     const layer = LAYERS.find((l) => l.id === key) ?? { name: "Landmarks" };
+    const nameId = `color-name-${key}`;
     return `
       <div class="color-row">
         <label class="color-row__swatch" style="background:${state.colors[key]}">
-          <input type="color" value="${state.colors[key]}" data-color="${key}" aria-label="${layer.name} color" />
+          <input type="color" value="${state.colors[key]}" data-color="${key}" aria-labelledby="${nameId}" />
         </label>
-        <span class="color-row__name">${layer.name}</span>
-        <span class="color-row__hex">${state.colors[key]}</span>
+        <span class="color-row__name" id="${nameId}">${layer.name}</span>
+        <span class="color-row__hex" aria-hidden="true">${state.colors[key]}</span>
       </div>`;
   }).join("");
 }
@@ -141,7 +142,7 @@ function buildLayerRows() {
       <button class="layer-row" type="button" data-layer="${layer.id}" aria-pressed="${
         state.layers[layer.id]
       }">
-        <span class="switch"></span>
+        <span class="switch" aria-hidden="true"></span>
         <span class="layer-row__name">${layer.name}</span>
       </button>`
   ).join("");
@@ -168,7 +169,12 @@ function currentSvg(attribution = false) {
 }
 
 function draw() {
-  $("canvas").innerHTML = currentSvg();
+  const canvas = $("canvas");
+  canvas.innerHTML = currentSvg();
+  const empty = !(state.place && state.features);
+  canvas.classList.toggle("canvas--empty", empty);
+  const hint = $("canvas-hint");
+  if (hint) hint.hidden = !empty;
 }
 
 /** PNG export size: long edge fixed, short edge from the crop ratio. */
@@ -247,11 +253,12 @@ async function loadNote(place) {
   }
 }
 
-function setStatus(message, isError = false) {
+function setStatus(message, tone = "neutral") {
   const el = $("status");
   el.hidden = !message;
   el.textContent = message ?? "";
-  el.classList.toggle("status--error", isError);
+  el.classList.toggle("status--error", tone === "error");
+  el.classList.toggle("status--pending", tone === "pending");
 }
 
 /* ── Generation ────────────────────────────────────────────────── */
@@ -267,6 +274,7 @@ function setSpinner(label) {
   const el = $("spinner");
   el.hidden = !label;
   if (label) $("spinner-label").textContent = label;
+  $("canvas-wrap")?.setAttribute("aria-busy", String(Boolean(label)));
 }
 
 function fetchKey() {
@@ -307,9 +315,12 @@ async function generate() {
     draw();
     syncMeta();
     const count = countFeatures(state.features, state.layers, state.mapDetails);
-    setStatus(count ? "" : "No features found here — try a larger radius", !count);
+    setStatus(
+      count ? "" : "No features found here — try a larger radius",
+      count ? "neutral" : "pending"
+    );
   } catch (error) {
-    setStatus(error.message, true);
+    setStatus(error.message, "error");
   } finally {
     setSpinner(null);
     state.busy = false;
@@ -320,7 +331,7 @@ async function generate() {
 /** Data-changing controls mark the map stale instead of refetching on every tick. */
 function markStale() {
   if (state.features && state.fetchedWith !== fetchKey()) {
-    setStatus("Press Generate Map to apply");
+    setStatus("Press Generate Map to apply", "pending");
   } else {
     setStatus("");
   }
@@ -394,31 +405,77 @@ function init() {
   $("generate-btn").addEventListener("click", generate);
 
   const menu = $("export-menu");
-  $("export-btn").addEventListener("click", () => {
-    menu.hidden = !menu.hidden;
-    $("export-btn").setAttribute("aria-expanded", String(!menu.hidden));
+  const exportBtn = $("export-btn");
+
+  function setMenuOpen(open) {
+    menu.hidden = !open;
+    exportBtn.setAttribute("aria-expanded", String(open));
+    if (open) {
+      menu.querySelector("[data-export]")?.focus();
+    }
+  }
+
+  function closeMenu({ restoreFocus = false } = {}) {
+    if (menu.hidden) return;
+    setMenuOpen(false);
+    if (restoreFocus) exportBtn.focus();
+  }
+
+  exportBtn.addEventListener("click", (event) => {
+    event.stopPropagation();
+    setMenuOpen(menu.hidden);
   });
-  document.addEventListener("click", (event) => {
-    if (!event.target.closest(".menu")) {
-      menu.hidden = true;
-      $("export-btn").setAttribute("aria-expanded", "false");
+
+  exportBtn.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown" && menu.hidden) {
+      event.preventDefault();
+      setMenuOpen(true);
     }
   });
+
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest(".menu")) closeMenu();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeMenu({ restoreFocus: true });
+  });
+
+  menu.addEventListener("keydown", (event) => {
+    const items = [...menu.querySelectorAll("[data-export]")];
+    const index = items.indexOf(document.activeElement);
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      items[(index + 1) % items.length]?.focus();
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      items[(index - 1 + items.length) % items.length]?.focus();
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      items[0]?.focus();
+    } else if (event.key === "End") {
+      event.preventDefault();
+      items.at(-1)?.focus();
+    } else if (event.key === "Tab") {
+      closeMenu();
+    }
+  });
+
   menu.addEventListener("click", async (event) => {
     const button = event.target.closest("[data-export]");
     if (!button) return;
-    menu.hidden = true;
+    closeMenu({ restoreFocus: true });
     const name = state.place?.label ?? state.query;
     try {
       if (button.dataset.export === "svg") {
         exportSvg(currentSvg(true), name);
       } else {
-        setStatus("Rendering PNG…");
+        setStatus("Rendering PNG…", "pending");
         await exportPng(currentSvg(true), name, exportSize());
         setStatus("");
       }
     } catch (error) {
-      setStatus(error.message, true);
+      setStatus(error.message, "error");
     }
   });
 

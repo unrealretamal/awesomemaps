@@ -33,6 +33,7 @@ export { default as brandMark } from "./assets/icons/brand-mark.png";
 /** Fill every `<i class="icon" data-icon="…">` inside `root`. */
 export function mountIcons(root = document) {
   root.querySelectorAll(".icon[data-icon]").forEach((el) => {
+    if (!el.hasAttribute("aria-hidden")) el.setAttribute("aria-hidden", "true");
     if (el.firstElementChild) return;
     const svg = icons[el.dataset.icon];
     if (svg) el.innerHTML = svg;

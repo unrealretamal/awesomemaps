@@ -317,12 +317,29 @@ export function renderSvg(opts) {
 /** Placeholder artwork shown before the first generation. */
 export function renderPlaceholder({ preset, shape }) {
   const frame = frameOf(shape);
+  const { x, y, w, h } = frame;
+  const cx = SIZE / 2;
+  const cy = SIZE / 2;
+  const tick = Math.min(w, h) * 0.04;
+  const stroke = preset.ink || "#C9BFA8";
+
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" ` +
-    `viewBox="${frame.x} ${frame.y} ${frame.w} ${frame.h}" aria-hidden="true">` +
+    `viewBox="${x} ${y} ${w} ${h}" role="img" aria-label="Empty map crop preview">` +
     `<defs><clipPath id="crop">${clipShape(shape)}</clipPath></defs>` +
     `<g clip-path="url(#crop)">` +
-    `<rect x="${frame.x}" y="${frame.y}" width="${frame.w}" height="${frame.h}" fill="${preset.paper}" />` +
+    `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${preset.paper}" />` +
+    `<g stroke="${stroke}" stroke-width="1" opacity="0.45" fill="none">` +
+    `<line x1="${cx}" y1="${cy - tick * 2.5}" x2="${cx}" y2="${cy + tick * 2.5}" />` +
+    `<line x1="${cx - tick * 2.5}" y1="${cy}" x2="${cx + tick * 2.5}" y2="${cy}" />` +
+    `<circle cx="${cx}" cy="${cy}" r="${tick * 0.7}" />` +
+    `</g>` +
+    `<g stroke="${stroke}" stroke-width="1.2" opacity="0.55" fill="none">` +
+    `<path d="M${x + tick} ${y + tick * 3}V${y + tick}H${x + tick * 3}" />` +
+    `<path d="M${x + w - tick} ${y + tick * 3}V${y + tick}H${x + w - tick * 3}" />` +
+    `<path d="M${x + tick} ${y + h - tick * 3}V${y + h - tick}H${x + tick * 3}" />` +
+    `<path d="M${x + w - tick} ${y + h - tick * 3}V${y + h - tick}H${x + w - tick * 3}" />` +
+    `</g>` +
     `</g></svg>`
   );
 }

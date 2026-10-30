@@ -16,7 +16,7 @@
 
     <div class="app">
       <!-- ── Left sidebar ─────────────────────────────────────────── -->
-      <aside class="sidebar sidebar--left">
+      <aside class="sidebar sidebar--left" aria-label="Map controls">
         <div class="brand">
           <span class="brand__mark"><img id="brand-mark" src="" alt="" width="20" height="20" /></span>
           <span class="brand__name">AwesomeMaps</span>
@@ -24,9 +24,9 @@
         </div>
 
         <section class="panel">
-          <h2 class="panel__label">Location</h2>
+          <h2 class="panel__label" id="location-label">Location</h2>
           <div class="field">
-            <i class="icon field__icon" data-icon="pin"></i>
+            <i class="icon field__icon" data-icon="pin" aria-hidden="true"></i>
             <input
               id="location-input"
               class="input"
@@ -34,20 +34,22 @@
               value="Bairro Alto, Lisbon"
               autocomplete="off"
               spellcheck="false"
-              aria-label="Location"
+              aria-labelledby="location-label"
+              aria-describedby="location-hint"
             />
           </div>
-          <div class="grid grid--2 grid--tight" id="location-presets"></div>
+          <p class="field__hint" id="location-hint">Press Enter to generate, or pick a preset below.</p>
+          <div class="grid grid--2 grid--tight" id="location-presets" role="group" aria-label="Location presets"></div>
         </section>
 
         <section class="panel">
-          <h2 class="panel__label">Style Preset</h2>
-          <div class="grid grid--2" id="preset-grid"></div>
+          <h2 class="panel__label" id="preset-label">Style Preset</h2>
+          <div class="grid grid--2" id="preset-grid" role="group" aria-labelledby="preset-label"></div>
         </section>
 
         <section class="panel">
-          <h2 class="panel__label">Crop Shape</h2>
-          <div class="shapes" id="shape-row"></div>
+          <h2 class="panel__label" id="shape-label">Crop Shape</h2>
+          <div class="shapes" id="shape-row" role="group" aria-labelledby="shape-label"></div>
         </section>
 
         <section class="panel panel--last">
@@ -72,39 +74,51 @@
       </aside>
 
       <!-- ── Main ─────────────────────────────────────────────────── -->
-      <main class="main">
+      <main class="main" aria-label="Map preview">
         <div class="topbar">
           <div class="topbar__place">
-            <i class="icon" data-icon="dot"></i>
+            <i class="icon" data-icon="dot" aria-hidden="true"></i>
             <span id="topbar-place">Bairro Alto, Lisbon</span>
           </div>
           <div class="topbar__meta">
             <span class="tag" id="topbar-meta">1000m · circle</span>
             <span class="topbar__note" id="topbar-note" hidden></span>
           </div>
-          <div class="menu">
-            <button class="btn btn--ghost" id="export-btn" aria-haspopup="true" aria-expanded="false">
-              <i class="icon" data-icon="download"></i>
-              <span>Export</span>
-              <i class="icon" data-icon="chevron"></i>
-            </button>
-            <div class="menu__list" id="export-menu" hidden>
-              <button class="menu__item" data-export="svg">SVG</button>
-              <button class="menu__item" data-export="png">PNG · 4096</button>
+          <div class="topbar__actions">
+            <div class="menu">
+              <button
+                class="btn btn--ghost"
+                id="export-btn"
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded="false"
+                aria-controls="export-menu"
+              >
+                <i class="icon" data-icon="download" aria-hidden="true"></i>
+                <span>Export</span>
+                <i class="icon" data-icon="chevron" aria-hidden="true"></i>
+              </button>
+              <div class="menu__list" id="export-menu" role="menu" hidden>
+                <button class="menu__item" type="button" role="menuitem" data-export="svg">SVG</button>
+                <button class="menu__item" type="button" role="menuitem" data-export="png">PNG · 4096</button>
+              </div>
             </div>
+            <button class="btn btn--primary" id="generate-btn" type="button">
+              <i class="icon" data-icon="generate" aria-hidden="true"></i>
+              <span>Generate Map</span>
+            </button>
           </div>
-          <button class="btn btn--primary" id="generate-btn">
-            <i class="icon" data-icon="generate"></i>
-            <span>Generate Map</span>
-          </button>
         </div>
 
-        <div class="canvas-wrap">
+        <div class="canvas-wrap" id="canvas-wrap" aria-busy="false">
           <div class="canvas-grid" aria-hidden="true"></div>
-          <figure class="canvas" id="canvas">
+          <figure class="canvas canvas--empty" id="canvas">
             <!-- svg is injected here -->
           </figure>
-          <p class="canvas__caption" id="canvas-caption">Bairro Alto, Lisbon</p>
+          <div class="canvas__footer">
+            <p class="canvas__caption" id="canvas-caption">Bairro Alto, Lisbon</p>
+            <p class="canvas__hint" id="canvas-hint">Idle crop — press Generate Map to pull live OpenStreetMap geometry.</p>
+          </div>
           <div class="spinner" id="spinner" role="status" aria-live="polite" hidden>
             <div class="spinner__dial">
               <span class="spinner__ring"></span>
@@ -112,26 +126,26 @@
             </div>
             <p class="spinner__label" id="spinner-label">Reading tiles…</p>
           </div>
-          <div class="status" id="status" hidden></div>
+          <div class="status" id="status" role="status" aria-live="polite" hidden></div>
         </div>
       </main>
 
       <!-- ── Right sidebar ────────────────────────────────────────── -->
-      <aside class="sidebar sidebar--right">
+      <aside class="sidebar sidebar--right" aria-label="Layers and info">
         <section class="panel">
-          <h2 class="panel__label">Layer Colors</h2>
-          <div id="color-rows"></div>
+          <h2 class="panel__label" id="colors-label">Layer Colors</h2>
+          <div id="color-rows" role="group" aria-labelledby="colors-label"></div>
         </section>
 
         <section class="panel">
-          <h2 class="panel__label">Layers</h2>
-          <div id="layer-rows"></div>
+          <h2 class="panel__label" id="layers-label">Layers</h2>
+          <div id="layer-rows" role="group" aria-labelledby="layers-label"></div>
           <label class="detail-field" for="map-details">
             <span>Map details</span>
             <select id="map-details" class="select">
               <option value="none">None</option>
               <option value="landmarks">Landmarks</option>
-              <option value="transit">Metro & rail stations</option>
+              <option value="transit">Metro &amp; rail stations</option>
               <option value="all">Landmarks + transit</option>
             </select>
           </label>

@@ -104,6 +104,13 @@
   color: var(--accent);
 }
 
+.site-nav__cta:focus-visible,
+.site-nav__link:focus-visible,
+.site-nav__brand:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 3px;
+}
+
 .site-nav__arrow--back {
   transform: scaleX(-1);
   filter: none;
