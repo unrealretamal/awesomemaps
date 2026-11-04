@@ -179,7 +179,6 @@ export function footer() {
         </div>
         <div class="footer__col">
           <h2>Elsewhere</h2>
-          <a href="${PORTFOLIO_URL}" rel="author">retamal.xyz</a>
           <a href="${REPO_URL}" rel="noopener">GitHub</a>
           <a href="${STUDIO_URL}" rel="noopener">Python studio</a>
           <a href="https://www.openstreetmap.org" rel="noopener">OpenStreetMap</a>

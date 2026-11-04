@@ -2,7 +2,7 @@ import "../shared/tokens.css";
 import "./gallery.css";
 import { mountNav } from "../shared/nav.js";
 import { CATALOG, generatorHref } from "../catalog.js";
-import { PORTFOLIO_URL, STUDIO_URL } from "../shared/site.js";
+import { STUDIO_URL } from "../shared/site.js";
 import { inject } from "@vercel/analytics";
 
 const PALETTE_FILTERS = [...new Set(CATALOG.map((entry) => entry.preset))];
@@ -72,11 +72,7 @@ function pageShell() {
 
     <footer class="gal-foot">
       <p>AwesomeMaps — a side product by Diego Ramos Retamal. Map data © OpenStreetMap contributors.</p>
-      <p>
-        <a href="${PORTFOLIO_URL}" rel="author">retamal.xyz</a>
-        ·
-        <a href="${STUDIO_URL}" rel="noopener">Python studio</a>
-      </p>
+      <p><a href="${STUDIO_URL}" rel="noopener">Python studio</a></p>
     </footer>`;
 }
 
