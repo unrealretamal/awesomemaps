@@ -1,6 +1,6 @@
 import { STEPS, STATS, STYLES } from "./data.js";
 import { FEATURED, GALLERY_PREVIEW, generatorHref } from "../catalog.js";
-import { PORTFOLIO_URL, PRETTYMAPS_URL, REPO_URL, STUDIO_URL } from "../shared/site.js";
+import { PRETTYMAPS_URL, REPO_URL, STUDIO_URL } from "../shared/site.js";
 
 import socialGithub from "../assets/home/social-github.svg";
 
@@ -26,10 +26,10 @@ export function hero() {
   return `
   <section class="hero">
     <div class="hero__copy">
-      <h1 class="hero__headline">Maps, made personal.</h1>
+      <h1 class="hero__headline">Poster maps from OpenStreetMap.</h1>
       <p class="hero__subtitle">
-        A side product by Diego Ramos Retamal. Generate poster-style maps from
-        OpenStreetMap — pick a palette and a crop, then export SVG or a 4096 px PNG.
+        Pick a palette and crop, toggle layers, export SVG or a 4096&nbsp;px PNG.
+        By Diego Ramos Retamal.
       </p>
       <div class="hero__ctas">
         <a class="btn btn--fill" href="/generator">Open generator</a>
@@ -52,7 +52,7 @@ export function featured() {
     <header class="section__head">
       <div class="section__titles">
         <h2>Three cities, three palettes.</h2>
-        <p>Berlin in Nori, Madrid in Terracotta, Tokyo in Midnight — same engine, different adaptations.</p>
+        <p>Berlin in Nori, Madrid in Terracotta, Tokyo in Midnight. Same render path, different colors.</p>
       </div>
       <a class="text-link" href="/gallery">View all</a>
     </header>
@@ -79,7 +79,7 @@ export function howItWorks() {
     <header class="section__head">
       <div class="section__titles">
         <h2>Three steps to a poster.</h2>
-        <p>From a place name to a print-ready file. I check what gets generated, then you decide what to hang.</p>
+        <p>Search a place, tune the map, download SVG or PNG.</p>
       </div>
     </header>
     <ol class="process">${steps}</ol>
@@ -111,8 +111,8 @@ export function mapStyles() {
   <section class="section">
     <header class="section__head">
       <div class="section__titles">
-        <h2>What the crops emphasise.</h2>
-        <p>Circle, square and the other frames are genuine crops of the same map, not squashed squares.</p>
+        <h2>What each crop does.</h2>
+        <p>Circle, square, arch, hex, and diamond cut the same map. Nothing is a stretched square.</p>
       </div>
     </header>
     <div class="crop-grid">${cards}</div>
@@ -124,8 +124,8 @@ export function galleryPreview() {
   <section class="section">
     <header class="section__head">
       <div class="section__titles">
-        <h2>Adapted posters.</h2>
-        <p>Each card is a real render — city, palette and crop — and opens in the generator.</p>
+        <h2>Gallery renders.</h2>
+        <p>Each card opens the generator with that city, palette, and crop already set.</p>
       </div>
       <a class="btn btn--outline btn--sm" href="/gallery">See the collection</a>
     </header>
@@ -139,25 +139,20 @@ export function about() {
   return `
   <section class="section section--about" id="about">
     <div class="about">
-      <h2>Built outside the brief.</h2>
+      <h2>About the project.</h2>
       <p>
-        AwesomeMaps is a map generator I ship myself — designed with the same
-        judgment as client work. Every map is drawn from OpenStreetMap, a free
-        world map built and corrected by human editors. This site reads OSM
-        geometry from vector tiles, projects it into SVG, and hands you the layers.
+        AwesomeMaps reads OpenStreetMap geometry from vector tiles, draws it as
+        SVG in the browser, and exports layered files you can edit or print.
       </p>
       <p>
-        The plotting idea started as a Streamlit studio I forked from
-        <a href="${PRETTYMAPS_URL}" rel="noopener">prettymaps by Marcelo Prates</a>
-        — that Python editor still lives at
+        The idea started in a Streamlit fork of
+        <a href="${PRETTYMAPS_URL}" rel="noopener">prettymaps by Marcelo Prates</a>.
+        The Python editor lives at
         <a href="${STUDIO_URL}" rel="noopener">unrealretamal/prettymaps-studio</a>.
-        This implementation is independent JavaScript, in
+        This site is new JavaScript in
         <a href="${REPO_URL}" rel="noopener">unrealretamal/awesomemaps</a>.
       </p>
-      <p>
-        <a href="${PORTFOLIO_URL}" rel="author">Diego Ramos Retamal</a>
-        · Senior Product Designer in Berlin.
-      </p>
+      <p>Diego Ramos Retamal · Senior Product Designer in Berlin.</p>
     </div>
   </section>`;
 }
@@ -168,7 +163,7 @@ export function footer() {
     <div class="footer__top">
       <div class="footer__brand">
         <span class="footer__logo">AwesomeMaps</span>
-        <p>A map generator exploring open geographic data and poster composition.</p>
+        <p>OpenStreetMap in, poster SVG or PNG out.</p>
       </div>
       <nav class="footer__cols" aria-label="Footer">
         <div class="footer__col">

@@ -28,7 +28,7 @@ export const STATS = [
 export const STYLES = [
   {
     title: "Circle",
-    body: "A round crop of the same map — useful when the city should sit as a medal or a stamp.",
+    body: "A round crop of the same map. Works when you want the city to read like a medal or stamp.",
   },
   {
     title: "Square",
@@ -40,6 +40,6 @@ export const STYLES = [
   },
   {
     title: "Arch, hex, diamond",
-    body: "The other frames cut the same geometry. Pick the one that matches the wall, not the other way around.",
+    body: "The other frames cut the same geometry. Choose the shape that fits the wall.",
   },
 ];
