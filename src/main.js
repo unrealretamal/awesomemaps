@@ -331,7 +331,7 @@ async function generate() {
     draw();
     syncMeta();
     const count = countFeatures(state.features, state.layers, state.mapDetails);
-    setStatus(count ? "" : "No features found here — try a larger radius", !count);
+    setStatus(count ? "" : "No features in this area. Try a larger radius.", !count);
   } catch (error) {
     setStatus(error.message, true);
   } finally {
@@ -344,7 +344,7 @@ async function generate() {
 /** Data-changing controls mark the map stale instead of refetching on every tick. */
 function markStale() {
   if (state.features && state.fetchedWith !== fetchKey()) {
-    setStatus("Press Generate Map to apply");
+    setStatus("Press Generate map to update the preview.");
   } else {
     setStatus("");
   }

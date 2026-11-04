@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Generator — AwesomeMaps</title>
-    <meta name="description" content="Generate poster-style maps of any neighbourhood from OpenStreetMap. Pick a palette and crop, then export SVG or a 4096 px PNG." />
+    <meta name="description" content="Search a neighbourhood on OpenStreetMap, pick a palette and crop, export SVG or a 4096 px PNG." />
     <link rel="canonical" href="https://awesomemaps.diegoramosretamal.info/generator" />
     <meta name="theme-color" content="#0b0c0e" />
     <meta property="og:type" content="website" />
@@ -12,7 +12,7 @@
     <meta property="og:title" content="Generator — AwesomeMaps" />
     <meta
       property="og:description"
-      content="Generate poster-style maps of any neighbourhood from OpenStreetMap. Export SVG or a 4096 px PNG."
+      content="Search a neighbourhood, pick a palette and crop, export SVG or a 4096 px PNG."
     />
     <meta property="og:url" content="https://awesomemaps.diegoramosretamal.info/generator" />
     <meta property="og:image" content="https://awesomemaps.diegoramosretamal.info/og/og-default.jpg" />
@@ -22,7 +22,7 @@
     <meta name="twitter:title" content="Generator — AwesomeMaps" />
     <meta
       name="twitter:description"
-      content="Generate poster-style maps of any neighbourhood from OpenStreetMap. Export SVG or a 4096 px PNG."
+      content="Search a neighbourhood, pick a palette and crop, export SVG or a 4096 px PNG."
     />
     <meta name="twitter:image" content="https://awesomemaps.diegoramosretamal.info/og/og-default.jpg" />
     <link rel="icon" type="image/png" href="/icons/brand-mark.png" />
@@ -39,18 +39,17 @@
         "operatingSystem": "Web",
         "url": "https://awesomemaps.diegoramosretamal.info/generator",
         "image": "https://awesomemaps.diegoramosretamal.info/og/og-default.jpg",
-        "description": "Generate poster-style maps of any neighbourhood from OpenStreetMap. Export SVG or a 4096 px PNG.",
+        "description": "Search a neighbourhood, pick a palette and crop, export SVG or a 4096 px PNG.",
         "author": {
           "@type": "Person",
-          "name": "Diego Ramos Retamal",
-          "url": "https://retamal.xyz"
+          "name": "Diego Ramos Retamal"
         }
       }
     </script>
   </head>
   <body>
     <header id="site-nav"></header>
-    <h1 class="visually-hidden">Generator — poster-style maps of any neighbourhood</h1>
+    <h1 class="visually-hidden">Generator — poster maps from OpenStreetMap</h1>
 
     <div class="app">
       <!-- ── Left sidebar ─────────────────────────────────────────── -->
@@ -148,7 +147,7 @@
               <span class="spinner__ring"></span>
               <img class="spinner__mark" id="spinner-mark" src="" alt="" width="28" height="28" />
             </div>
-            <p class="spinner__label" id="spinner-label">Reading tiles…</p>
+            <p class="spinner__label" id="spinner-label">Loading…</p>
           </div>
           <div class="status" id="status" hidden></div>
         </div>
@@ -187,7 +186,10 @@
 
         <footer class="credits">
           <p>© OpenStreetMap contributors</p>
-          <p>Inspired by prettymaps</p>
+          <p>
+            Based on
+            <a href="https://github.com/marceloprates/prettymaps" rel="noopener">prettymaps</a>
+          </p>
           <p>Diego Ramos Retamal</p>
         </footer>
       </aside>

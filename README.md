@@ -1,10 +1,9 @@
 # AwesomeMaps
 
-Poster-style map generator in the browser. A side product by
-[Diego Ramos Retamal](https://retamal.xyz).
+Poster map generator in the browser. By Diego Ramos Retamal.
 
-Pick a neighbourhood, a palette and a crop shape; the app pulls OpenStreetMap
-geometry and draws an SVG you can export as SVG or a 4096 px PNG.
+Search a neighbourhood, pick a palette and crop. The app reads OpenStreetMap
+geometry, draws SVG in the browser, and exports SVG or a 4096 px PNG.
 
 - **Live:** https://awesomemaps.diegoramosretamal.info
 - **Also at:** https://awesomemaps.vercel.app
