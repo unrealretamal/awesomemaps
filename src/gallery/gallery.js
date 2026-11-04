@@ -46,7 +46,7 @@ function filtersMarkup(preset, shape) {
     ...SHAPE_FILTERS.map((id) => chip(id, id, shape, "shape")),
   ].join("");
   return `
-    <div class="gal-filters" role="toolbar" aria-label="Filter adaptations">
+    <div class="gal-filters" role="toolbar" aria-label="Filter by palette and crop">
       <div class="gal-filters__row">${presetChips}</div>
       <div class="gal-filters__row">${shapeChips}</div>
     </div>`;
@@ -63,15 +63,15 @@ function filteredCatalog(preset, shape) {
 function pageShell() {
   return `
     <section class="gal-intro">
-      <h1 class="gal-display">The city looks back.</h1>
-      <p>Ten adaptations of live OpenStreetMap geometry — each city paired with a palette and a crop, then drawn as a print.</p>
+      <h1 class="gal-display">Ten city posters.</h1>
+      <p>Ten OpenStreetMap renders. Each card opens the generator with its city, palette, and crop set.</p>
     </section>
 
     <div id="gal-filters"></div>
     <div class="gal-grid" id="gal-grid"></div>
 
     <footer class="gal-foot">
-      <p>AwesomeMaps — a side product by Diego Ramos Retamal. Map data © OpenStreetMap contributors.</p>
+      <p>Diego Ramos Retamal · Map data © OpenStreetMap contributors.</p>
       <p><a href="${STUDIO_URL}" rel="noopener">Python studio</a></p>
     </footer>`;
 }
@@ -83,7 +83,7 @@ function renderGrid(preset, shape) {
   filterHost.innerHTML = filtersMarkup(preset, shape);
   const matches = filteredCatalog(preset, shape);
   if (matches.length === 0) {
-    host.innerHTML = `<p class="gal-empty">No adaptations match those filters. Clear a filter to see the full collection.</p>`;
+    host.innerHTML = `<p class="gal-empty">No maps match those filters. Clear a filter to see all ten.</p>`;
     return;
   }
   const unfiltered = !preset && !shape;

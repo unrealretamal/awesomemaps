@@ -127,7 +127,7 @@ export function galleryPreview() {
         <h2>Gallery renders.</h2>
         <p>Each card opens the generator with that city, palette, and crop already set.</p>
       </div>
-      <a class="btn btn--outline btn--sm" href="/gallery">See the collection</a>
+      <a class="btn btn--outline btn--sm" href="/gallery">See gallery</a>
     </header>
     <div class="poster-grid poster-grid--2">
       ${GALLERY_PREVIEW.map((item) => poster(item)).join("")}

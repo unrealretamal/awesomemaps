@@ -1,6 +1,6 @@
 ---
 name: AwesomeMaps
-description: Poster maps from OpenStreetMap — a side product by Diego Ramos Retamal, in the same editorial family as retamal.xyz.
+description: Poster maps from OpenStreetMap by Diego Ramos Retamal. Cream paper, ink, terracotta on marketing; HUD chrome in the generator.
 colors:
   bg-app: "#f5f1e8"
   bg-panel: "#fbf9f3"
@@ -101,7 +101,7 @@ components:
 
 ## Overview
 
-AwesomeMaps is a side product by Diego Ramos Retamal, in the same family as [retamal.xyz](https://retamal.xyz): paper, ink, one terracotta signal, large display type, numbered process only when the sequence is real.
+AwesomeMaps is a map poster tool by Diego Ramos Retamal: paper, ink, one terracotta accent, large display type, numbered steps only where order matters.
 
 Two surfaces, one authorship:
 
@@ -110,7 +110,7 @@ Two surfaces, one authorship:
 
 The plotting idea started as a Streamlit studio forked from [prettymaps](https://github.com/marceloprates/prettymaps) at [unrealretamal/prettymaps-studio](https://github.com/unrealretamal/prettymaps-studio). This site is the independent JavaScript product: OpenStreetMap geometry in, SVG poster out.
 
-Carry the portfolio *family* (status, scale, numbering, judgment). Do not clone the vault, recruiter strip, or testimonials.
+Keep the editorial tone (status strip, scale, numbering). Do not add recruiter strips or fake social proof.
 
 ## Brand mark
 
@@ -171,6 +171,6 @@ No technical grids, compass rings, or coordinate ticks on marketing viewports. A
 
 ## Do / don't
 
-**Do** present AwesomeMaps as Diego’s product (link `https://retamal.xyz`). Keep gallery copy honest — these posters are generated here. Credit OSM, the Python studio fork, and prettymaps as inspiration (no prettymaps code is reused).
+**Do** name Diego as author where credits appear. State what the tool does in plain sentences. Gallery cards are real renders from this app. Credit OSM, the Python studio fork, and prettymaps (no prettymaps code is reused).
 
 **Don't** put kickers above headings. Don't dress marketing in HUD teal or compass chrome. Don't invent view counts, npm packages, or WebGL compilers. Don't restyle chrome with a poster palette. Don't ship social icons that are not links.

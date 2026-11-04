@@ -1,15 +1,14 @@
 # AwesomeMaps
 
-Poster-style map generator. Pick a place, a palette and a crop shape; the app
-pulls OpenStreetMap geometry, draws it as SVG in the browser, and exports SVG or
-a 4096px PNG.
+Poster map generator. Search a place, pick a palette and crop. The app reads
+OpenStreetMap geometry, draws SVG in the browser, and exports SVG or a 4096 px
+PNG.
 
 - **Live:** https://awesomemaps.diegoramosretamal.info
 - **Also at:** https://awesomemaps.vercel.app
 - **Repo:** https://github.com/unrealretamal/awesomemaps
 
-A side product by [Diego Ramos Retamal](https://retamal.xyz). The plotting idea
-started as a Streamlit studio forked from
+By Diego Ramos Retamal. The plotting idea started as a Streamlit studio forked from
 [prettymaps](https://github.com/marceloprates/prettymaps):
 [unrealretamal/prettymaps-studio](https://github.com/unrealretamal/prettymaps-studio).
 This repository is the independent JavaScript implementation — no prettymaps
